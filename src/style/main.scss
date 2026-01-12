@@ -1,7 +1,11 @@
 @use 'reset';
-@use'fonts';
+@use 'fonts';
 
 html,
 body {
     height: 100%;
 }
+
+body{
+    font-family: SourGummy;
+} 
