@@ -15,9 +15,12 @@ import "./HomeView.scss"
         <div class="profile">
             <div class="profile-icon">
                 <img src="" alt="">
+                <button class="reroll">
+                    <img src="/img/refresh.svg" alt="">
+                </button>
             </div>
 
-            <input type="text" class="username">
+            <input type="text" class="username" placeholder="Username">
         </div>
     </div>
 </template>

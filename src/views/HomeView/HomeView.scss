@@ -24,33 +24,28 @@
     padding: 1rem;
 
     display: grid;
-    justify-content: center;
+    justify-items: center;
     align-content: center;
+    gap: 1rem;
 }
 
 .session{
-    grid-template-rows: repeat(2, 5rem);
+    grid-template-rows: repeat(2, 4rem);
 }
 
 .session-button, .username{
     position: relative; 
 
     width: 100%;
-    height: fit-content;
 
     padding: .5rem 1rem;
 
     border-radius: 1rem;
     outline: 0;
     border: 0;
-    
-
-    cursor: pointer;
-
-    transition: all 150ms ease-in;
 
     font-weight: 500;
-    color: hsl(273, 34%, 20%);
+    color: #352244;
 }
 
 .session-button{
@@ -59,11 +54,16 @@
 
     cursor: pointer;
 
-    transition: all 150ms ease-in;
+    transition: all 100ms ease-in;
 
     &:hover, &:focus-visible{
         border-bottom: .25rem solid #8f64b3;
         transform: translateY(.25rem);
+    }
+
+    &:active{
+        border-bottom: .2rem solid #8f64b3;
+        transform: translateY(.4rem);
     }
 }
 
@@ -73,10 +73,51 @@
 
 
 .profile-icon{
+    position: relative;
+
     background: white;
 
     width: 10rem;
     height: 10rem;
 
     border-radius: 100%;
+
+    display: grid;
+
+    & > * {
+        grid-column: 1;
+        grid-row: 1;
+    }
+}
+
+button.reroll{
+    width: 3rem;
+    height: 3rem;
+ 
+    position: absolute;
+    bottom: 0;
+    right: 0;
+
+    border-radius: 100%;
+
+    background-color: white;
+
+    cursor: pointer;
+
+    outline: 0;
+    border: .25rem solid #8f64b3;
+
+    transition: all 100ms ease-in;
+    
+    &:hover, &:focus-visible{
+        scale: 1.05;
+    }
+
+    &:active{
+        scale: 0.95;
+    }
+
+    & > img{
+        object-fit: contain;
+    }
 }
