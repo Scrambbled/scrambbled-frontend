@@ -1,4 +1,4 @@
-const API = `http://${import.meta.env.VITE_API_HOST}:${import.meta.env.VITE_API_PORT}`
+const API = `${import.meta.env.VITE_API}`
 
 const getProfileIcons = () => fetch(`${API}/user/icon/all`)
 
