@@ -1,0 +1,96 @@
+.press-in-button{
+    --_outline-color: #8f64b3;
+    --_shadow-color: hsl(from var(--_outline-color) h s l / .255);
+    --_text-color: hsl(from var(--_outline-color) h s calc(l / 2));
+
+    position: relative;
+    padding: .5rem 1rem;
+
+    border-radius: 1rem;
+    outline: 0;
+    border: 0;
+
+    font-weight: 500;
+    color: var(--_text-color);
+
+    border-top: .25rem solid var(--_shadow-color);
+    border-bottom: .5rem solid var(--_outline-color);
+
+    cursor: pointer;
+
+    transition: all 100ms ease-in;
+
+    &:hover, &:focus-visible{
+        border-bottom: .25rem solid var(--_outline-color);
+        transform: translateY(.25rem);
+    }
+
+    &:active{
+        border-bottom: .2rem solid var(--_outline-color);
+        transform: translateY(.4rem);
+    }
+}
+
+.text-input{
+    padding: .5rem 1rem;
+
+    border-radius: 1rem;
+    outline: 0;
+    border: 0;
+
+    font-weight: 500;
+
+    text-align: center;
+
+    width: 100%;
+}
+
+.framed-box{
+    outline: .25rem solid rgba(0, 0, 0, 0.404);
+    border-top: .25rem solid white;
+    border-bottom: .25rem solid rgba(0, 0, 0, 0.226);
+    border-radius: 1rem;
+
+    background-color: rgba(0, 0, 0, 0.226);
+
+    padding: 1rem;
+}
+
+.re-roll-button{
+    --_color: #8f64b3;
+    
+    width: 3rem;
+    height: 3rem;
+ 
+    position: relative;
+
+    border-radius: 100%;
+
+    background-color: white;
+
+    cursor: pointer;
+
+    outline: 0;
+    border: .25rem solid var(--_color);
+
+    transition: all 100ms ease-in;
+    
+    &:hover, &:focus-visible{
+        scale: 1.05;
+    }
+
+    &:active{
+        scale: 0.95;
+    }
+
+    &::after{
+        content: '';
+
+        position: absolute;
+        inset: 0;
+
+        background-color: var(--_color);
+        mask-image:  url('/img/refresh-minified.svg');
+        mask-size: contain;
+    }
+}

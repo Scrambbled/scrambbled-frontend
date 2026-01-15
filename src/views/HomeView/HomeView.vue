@@ -1,46 +1,42 @@
 <script setup lang="ts">
-
-import { onMounted, ref } from "vue";
-import { useApiHandler, type UserIcon } from "../../api/ApiHandler";
 import "./HomeView.scss"
-import { getRandomName } from "../../misc/usernames";
-
-const apiHandler = useApiHandler()
-
-
-const selectedIconIndex = ref(-1)
-let userIcons: UserIcon[] = []
-
-onMounted(() => {
-    apiHandler.getProfileIcons(icons =>{
-        userIcons = icons
-
-        if(userIcons.length > 0){
-            selectedIconIndex.value = 0;
-        }
-    })
-
-})
+import ProfileEdit from "../../components/ProfileEdit.vue";
 
 </script>
 
 <template>
     <div class="home-view">
-        <div class="session">
-            <button class="session-button">Join Game</button>
-            <button class="session-button">Create Session</button>
+        <div class="session framed-box">
+            <button class="session-button press-in-button">Join Game</button>
+            <button class="session-button press-in-button">Create Session</button>
         </div>
 
-
-        <div class="profile">
-            <div class="profile-icon">
-                <img :src="userIcons[selectedIconIndex]?.path">
-                <button class="reroll" @click.prevent="selectedIconIndex = (selectedIconIndex + 1) % userIcons.length">
-                    <img src="/img/refresh.svg" alt="">
-                </button>
-            </div>
-
-            <input type="text" class="username" placeholder="Username" :value="getRandomName()">
-        </div>
+       <ProfileEdit class="framed-box"/>
     </div>
 </template>
+
+<style lang="scss" scoped>
+.home-view{
+    height: 100%;
+
+    background-image: linear-gradient(to bottom right, #58e6bb, #ebbe43);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 3rem;
+}
+
+.session, .profile-edit{ 
+    width: 300px;
+    height: 500px;
+}
+
+.session{
+    display: grid;
+    grid-template-rows: repeat(2, 4rem);
+    gap: 1rem;
+    align-content: center;
+}
+</style>
