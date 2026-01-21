@@ -35,7 +35,7 @@ onMounted(() => {
     <div class="profile-edit">
         <div class="profile-icon">
             <img :src="userIcons[selectedIconIndex]?.path">
-            <button class="re-roll-pfp re-roll-button" @click.prevent="nextUserIcon">
+            <button class="re-roll-pfp round-image-button" @click.prevent="nextUserIcon">
             </button>
         </div>
 

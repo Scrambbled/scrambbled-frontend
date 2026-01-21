@@ -1,8 +1,35 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, useTemplateRef, warn } from "vue";
 import ProfileEdit from "../../components/ProfileEdit.vue";
+import { useSocket } from "../../api/socket/Socket";
 
 const currentMenuIndex = ref(1)
+
+type FrameType = "main-menu" | "create-session" | "join-game"
+function moveTo(frame: FrameType){
+    const frameIndexMap: {[key in FrameType]: number} = {
+        "create-session": 0,
+        "main-menu": 1,
+        "join-game": 2
+    }
+
+    currentMenuIndex.value = frameIndexMap[frame]
+}
+
+
+const socket = useSocket()
+const accessCodeRef = useTemplateRef("accessCode")
+
+function connect(){
+    let accessCode = accessCodeRef.value?.value
+
+    if(accessCode === undefined || accessCode.match(/[a-zA-Z0-9]{6}/) === null){
+        console.warn("Incorrect Access Code");
+        return
+    }
+
+    socket.connect(accessCode)
+}
 
 </script>
 
@@ -14,13 +41,14 @@ const currentMenuIndex = ref(1)
                     No thoughts… Menu empty :drooling:
                 </div>
                 <div class="main-menu">
-                    <button class="session-button press-in-button" @click.prevent="currentMenuIndex = 2">Join Game</button>
-                    <button class="session-button press-in-button" @click.prevent="currentMenuIndex = 0">Create Session</button>
+                    <button class="session-button press-in-button" @click.prevent="moveTo('join-game')">Join Game</button>
+                    <button class="session-button press-in-button" @click.prevent="moveTo('create-session')">Create Session</button>
                 </div>
-                <div class="join-game-menu">
-                    <input type="text" class="session-code text-input">
+                <form class="join-game-menu" @submit.prevent="connect()">
+                    <input type="text" ref="accessCode" class="session-code text-input" spellcheck="false" autocomplete="off" placeholder="Join Code" pattern="[a-zA-Z0-9]{6}">
                     <button class="session-button press-in-button">Join Game</button>
-                </div>
+                    <button class="round-image-button go-back-button" @click.prevent="moveTo('main-menu')"></button>
+                </form>
             </div>
         </div>
 
@@ -74,6 +102,16 @@ const currentMenuIndex = ref(1)
     & > *{
         padding: 1rem;
         height: 100%;
+
+        position: relative;
     }
+}
+
+.go-back-button{
+    --_image: url('/img/arrow_loop_left.svg');
+    
+    position: absolute;
+    top: 0;
+    right: 0;
 }
 </style>
