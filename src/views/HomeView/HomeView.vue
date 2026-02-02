@@ -2,6 +2,7 @@
 import { ref, useTemplateRef, warn } from "vue";
 import ProfileEdit from "../../components/ProfileEdit.vue";
 import { useSocket } from "../../api/socket/Socket";
+import CreateGame from "../../components/CreateGame.vue";
 
 const currentMenuIndex = ref(1)
 
@@ -37,9 +38,8 @@ function connect(){
     <div class="home-view">
         <div class="session framed-box">
             <div class="moving-frame" :style="{'--frame': currentMenuIndex}">
-                <div class="create-session-menu">
-                    No thoughts… Menu empty :drooling:
-                </div>
+                <CreateGame/>
+
                 <div class="main-menu">
                     <button class="session-button press-in-button" @click.prevent="moveTo('join-game')">Join Game</button>
                     <button class="session-button press-in-button" @click.prevent="moveTo('create-session')">Create Session</button>
