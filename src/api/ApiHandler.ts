@@ -8,6 +8,9 @@ const getAllGames = () => fetch(`${API}/game/all`)
 
 const createSession = (gameId: string) => fetch(`${API}/session/create`, {
     method: 'POST',
+    headers: {
+        'Content-Type': 'application/json'
+    },
     body: JSON.stringify({
         gameId: gameId
     })

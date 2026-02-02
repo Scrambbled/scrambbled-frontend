@@ -3,13 +3,15 @@ import type { Game } from "./game_stuff"
 
 export interface FrontGameData{
     iconPath: string,
-    game: Game
+    game: Game,
+    gameId: string,
 }
 
 const games = new Map([
     ["calc_game", {
         iconPath: '/img/game_icons/calculator_together.svg',
         game: CalcGame,
+        gameId: 'calc_game',
     }],
 ])
 

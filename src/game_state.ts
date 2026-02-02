@@ -1,9 +1,19 @@
 import type { Game } from "./games/game_stuff"
 
-let currentGame: Game | undefined = undefined
+let _game: Game | undefined
+let _accessCode: string | undefined
 
 export const useGameState = () => ({
-    getCurrentGame: () => currentGame,
-    setCurrentGame: (game: Game) => currentGame = game,
-    unsetCurrentGame: () => currentGame = undefined,
+    getGame: () => _game,
+    setGame: (game: Game) => _game = game,
+    unsetGame: () => _game = undefined,
+
+    getAccessCode: () => _accessCode,
+    setAccessCode: (accessCode: string) => _accessCode = accessCode,
+    unsetGameCode: () => _accessCode = undefined,
+
+    clear: () => {
+        _game = undefined
+        _accessCode = undefined
+    }
 })

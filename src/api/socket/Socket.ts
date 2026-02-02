@@ -20,5 +20,6 @@ function connectToSocket(accessCode: string){
 }
 
 export const useSocket = () => ({
-    connect: (accessCode: string) => connectToSocket(accessCode)
+    connect: (accessCode: string) => connectToSocket(accessCode),
+    getSocket: () => socket,
 })
