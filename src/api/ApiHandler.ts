@@ -3,12 +3,12 @@ import type { GameDTO } from "./dtos/game"
 
 const API = `${import.meta.env.VITE_API}`
 
-const getProfileIcons = () => fetch(`${API}/user/icon/all`)
-const getAllGames = () => fetch(`${API}/game/all`)
+const getProfileIcons = () => fetch(`/api/user/icon/all`)
+const getAllGames = () => fetch(`/api/game/all`)
 
-const getGameId = (accessCode: string) => fetch(`${API}/session/getGameId?accessCode=${accessCode}`)
+const getGameId = (accessCode: string) => fetch(`/api/session/getGameId?accessCode=${accessCode}`)
 
-const createSession = (gameId: string) => fetch(`${API}/session/create`, {
+const createSession = (gameId: string) => fetch(`/api/session/create`, {
     method: 'POST',
     headers: {
         'Content-Type': 'application/json'
