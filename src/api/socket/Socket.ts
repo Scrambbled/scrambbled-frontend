@@ -6,7 +6,7 @@ function connectToSocket(accessCode: string){
     if(socket !== undefined)
         return 
 
-    socket = io(`${import.meta.env.VITE_SOCKET}/?accessCode=${accessCode}`, {
+    socket = io(`/?accessCode=${accessCode}`, {
         
     })
 

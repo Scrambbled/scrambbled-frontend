@@ -21,7 +21,7 @@ const createSession = (gameId: string) => fetch(`/api/session/create`, {
 export const useApiHandler = () => ({
     getProfileIcons: (callback: (icons: UserIcon[]) => any) => getProfileIcons()
         .then(d => d.json())
-        .then(icons => callback((icons as UserIcon[]).map(icon => ({...icon, path: `${API}/${icon.path}`})))).catch(console.error),
+        .then(icons => callback((icons as UserIcon[]).map(icon => ({...icon, path: `/api/${icon.path}`})))).catch(console.error),
 
     getAllGames: (callback: (games: GameDTO[]) => any) => getAllGames()
         .then(d => d.json())
