@@ -6,6 +6,8 @@ const API = `${import.meta.env.VITE_API}`
 const getProfileIcons = () => fetch(`${API}/user/icon/all`)
 const getAllGames = () => fetch(`${API}/game/all`)
 
+const getGameId = (accessCode: string) => fetch(`${API}/session/getGameId?accessCode=${accessCode}`)
+
 const createSession = (gameId: string) => fetch(`${API}/session/create`, {
     method: 'POST',
     headers: {
@@ -25,6 +27,11 @@ export const useApiHandler = () => ({
         .then(d => d.json())
         .then(games => callback(games as GameDTO[]))
         .catch(console.error),
+
+    getGameId: (accessCode: string, callback: (gameId: string | undefined) => any) => getGameId(accessCode)
+        .then(d => d.text())
+        .then(gameId => callback(gameId))
+        .catch(_e => callback(undefined)),
 
     createSession: (gameId: string, callback: (accessCode: string) => any) => createSession(gameId)
         .then(d => d.text())

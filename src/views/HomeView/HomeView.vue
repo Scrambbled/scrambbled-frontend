@@ -3,6 +3,10 @@ import { ref, useTemplateRef, warn } from "vue";
 import ProfileEdit from "../../components/ProfileEdit.vue";
 import { useSocket } from "../../api/socket/Socket";
 import CreateGame from "../../components/CreateGame.vue";
+import { useApiHandler } from "../../api/ApiHandler";
+import { useGameState } from "../../game_state";
+import { getFrontGameData } from "../../games/Games";
+import { router } from "../../router";
 
 const currentMenuIndex = ref(1)
 
@@ -21,15 +25,39 @@ function moveTo(frame: FrameType){
 const socket = useSocket()
 const accessCodeRef = useTemplateRef("accessCode")
 
-function connect(){
-    let accessCode = accessCodeRef.value?.value
+// function connect(){
+//     let accessCode = accessCodeRef.value?.value
 
-    if(accessCode === undefined || accessCode.match(/[a-zA-Z0-9]{6}/) === null){
-        console.warn("Incorrect Access Code");
-        return
-    }
+//     if(accessCode === undefined || accessCode.match(/[a-zA-Z0-9]{6}/) === null){
+//         console.warn("Incorrect Access Code");
+//         return
+//     }
 
-    socket.connect(accessCode)
+//     socket.connect(accessCode)
+// }
+
+const apiHandler = useApiHandler()
+const gameState = useGameState()
+
+function handleJoin(accessCode: string){
+    apiHandler.getGameId(accessCode, (id) => {
+        if(id === undefined){
+            console.warn(`Game with access code '${accessCode}' was not found`)
+            return
+        }
+
+        const game = getFrontGameData(id)
+
+        if(game === undefined){
+            console.warn(`Game with id '${id}' is not currently supported`)
+            return
+        }
+
+        gameState.setGame(game.game)
+        gameState.setAccessCode(accessCode)
+
+        router.push('/game')
+    })
 }
 
 </script>
@@ -44,7 +72,7 @@ function connect(){
                     <button class="session-button press-in-button" @click.prevent="moveTo('join-game')">Join Game</button>
                     <button class="session-button press-in-button" @click.prevent="moveTo('create-session')">Create Session</button>
                 </div>
-                <form class="join-game-menu" @submit.prevent="connect()">
+                <form class="join-game-menu" @submit.prevent="handleJoin(accessCodeRef?.value ?? '')">
                     <input type="text" ref="accessCode" class="session-code text-input" spellcheck="false" autocomplete="off" placeholder="Join Code" pattern="[a-zA-Z0-9]{6}">
                     <button class="session-button press-in-button">Join Game</button>
                     <button class="round-image-button go-back-button" @click.prevent="moveTo('main-menu')"></button>

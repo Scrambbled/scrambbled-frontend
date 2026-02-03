@@ -19,7 +19,7 @@ game = game as Game
 const socket = useSocket()
 
 socket.connect(accessCode as string)
-game.registerSocketListeners(socket.getSocket())
+// game.registerSocketListeners(socket.getSocket())
 
 </script>
 

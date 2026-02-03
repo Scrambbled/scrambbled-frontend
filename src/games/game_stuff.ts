@@ -1,7 +1,9 @@
 import type { Socket } from "socket.io-client";
-import type { Component, VueElement } from "vue";
+import type { Component } from "vue";
+import type { FnMap } from "../misc/tools";
 
 export interface Game{
     gameView: Component
-    registerSocketListeners: (socket: Socket) => any
+    // registerSocketListeners: (socket: Socket) => any
+    // eventHandlers: E
 }
