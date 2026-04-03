@@ -1,7 +1,14 @@
 <script setup lang="ts">
 import { ref, useTemplateRef } from 'vue'
 
+const gameState = {
+    totalRounds: ref(10),
+    currentRound: ref(3),
 
+    points: ref(37),
+
+    usedWords: ref<string[]>(["test", "sentence"]),
+}
 
 const sentence = "Test sentence for word making".toLowerCase()
 const words = sentence.split(" ")
@@ -87,12 +94,25 @@ function clearUserInput(){
 <template>
     <main class="word-in-sentence">
 
-        <section class="word">
+        <header class="game-info framed-box">
+            <p class="round">
+                <span class="current-round">{{ gameState.currentRound }}</span>
+                /
+                <span class="total-rounds">{{ gameState.totalRounds }}</span>
+            </p>
+
+            <p></p>
+
+            <p class="points">
+                {{ gameState.points }}
+            </p>
+        </header>
+
+        <section class="user-word">
             <p class="entered-word">
                 <span>{{ userWord }}</span>
                 <button @click.prevent="clearUserInput()" class="clear round-image-button"></button>
             </p>
-            <button class="backspace press-in-button">BACKSPACE</button>
         </section>
 
         <ul class="words">
@@ -104,19 +124,68 @@ function clearUserInput(){
                 </ul>
             </li>
         </ul>
+
+        <ul class="used-words">
+            <li class="used-word" v-for="word in gameState.usedWords.value">{{ word }}</li>
+        </ul>
     </main>
 </template>
 
 <style lang="scss" scoped>
 
-.word{
-    display: flex;
-    justify-content: center;
+.word-in-sentence{
+    background-image: linear-gradient(to bottom right, #58e6bb, #ebbe43);
+
+    height: 100%;
+
+    display: grid;
+    grid-template-rows: min-content min-content min-content auto;
+    justify-items: center;
+}
+
+.game-info{
+    border-top: 0;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+
+    color: white;
+
+    display: grid;
+    grid-template-columns: min-content auto min-content;
+    align-items: center;
+
+    padding-block: .25rem;
+
+    width: 90%;
+
+    & .round{
+        font-size: 2rem;
+
+        display: flex;
+        align-items: center;
+
+        gap: .25rem;
+
+        color: #fffc;
+
+        & .current-round{
+            font-size: 3rem;
+
+            font-weight: bold;
+            color: white;
+        }
+    }
+
+    & .points{
+        font-size: 2rem;
+    }
+}
+
+.user-word{
+    width: 50%;
 
     & .entered-word{
-        border: .2rem solid black;
-
-        width: 50vw;
+        border-bottom: .25rem solid #8f64b3;
 
         border-radius: 1rem;
 
@@ -125,7 +194,9 @@ function clearUserInput(){
         align-content: center;
         gap: .5rem;
 
-        padding-inline: .5rem;
+        padding: .5rem;
+
+        background-color: #fff;
 
         & .clear{
             --_image: url("/img/cross.svg");
@@ -144,9 +215,11 @@ function clearUserInput(){
 }
 
 .words{
-    gap: 4rem;
+    gap: 3rem;
     flex-wrap: wrap;
     justify-content: center;
+
+    width: 80%;
 }
 
 .letters{
@@ -158,10 +231,10 @@ function clearUserInput(){
 
     box-sizing: content-box;
 
-    width: 4rem;
-    height: 4rem;
+    width: 3rem;
+    height: 3rem;
 
-    font-size: 3rem;
+    font-size: 2rem;
 
     background-color: #ebd09e;
 
@@ -173,8 +246,8 @@ function clearUserInput(){
     color: white;
     text-transform: uppercase;
 
-    border-bottom: .4rem solid #0001;
-    box-shadow: inset 0 .3rem 0 #fff8;
+    border-bottom: .3rem solid #0001;
+    box-shadow: inset 0 .2rem 0 #fff8;
 
     transition: transform .1s linear, border-bottom-width .1s linear;
 
@@ -182,16 +255,40 @@ function clearUserInput(){
 
     &:hover,
     &:focus-visible{
-        transform: translateY(.2rem);
-        border-bottom-width: .2rem;
+        transform: translateY(.15rem);
+        border-bottom-width: .15rem;
     }
 
     &.active{
         background-color: hsl(39, 46%, 57%);
-        box-shadow: inset 0 .3rem 0 #fff6;
+        box-shadow: inset 0 .2rem 0 #fff6;
 
-        transform: translateY(.4rem);
+        transform: translateY(.2rem);
         border-bottom-width: 0;
+    }
+}
+
+.used-words{
+    list-style-type: none;
+
+    display: grid;
+    grid-auto-rows: min-content;
+    gap: .25rem;
+
+    background-color: #fff;
+    padding: .5rem;
+
+    color: #5c5858;
+
+    width: 80%;
+
+    border-radius: .75rem .75rem 0 0;
+
+    & .used-word{
+        border-bottom: 2px solid #8f64b3;
+        padding-left: .25rem;
+
+        text-transform: uppercase;
     }
 }
 
