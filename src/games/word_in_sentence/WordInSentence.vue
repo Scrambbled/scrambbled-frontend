@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, useTemplateRef } from 'vue'
 
 
 
@@ -67,6 +67,20 @@ function letterTileClick(e: PointerEvent, letter: string){
     
 }
 
+const letterButtonsRef = useTemplateRef("letter-btn")
+
+function clearUserInput(){
+    if(!letterButtonsRef.value){
+        return
+    }
+
+    for(const letterButton of letterButtonsRef.value){
+        letterButton.classList.remove("active")
+    }
+
+    userWord.value = ""
+}
+
 
 </script>
 
@@ -76,7 +90,7 @@ function letterTileClick(e: PointerEvent, letter: string){
         <section class="word">
             <p class="entered-word">
                 <span>{{ userWord }}</span>
-                <button class="clear">x</button>
+                <button @click.prevent="clearUserInput()" class="clear round-image-button"></button>
             </p>
             <button class="backspace press-in-button">BACKSPACE</button>
         </section>
@@ -85,7 +99,7 @@ function letterTileClick(e: PointerEvent, letter: string){
             <li class="word" v-for="word in words">
                 <ul class="letters">
                     <li class="letter" v-for="letter in word.split('')">
-                        <button class="letter-tile" @click.prevent="e => letterTileClick(e, letter)">{{ letter }}</button>
+                        <button class="letter-tile" ref="letter-btn" @click.prevent="e => letterTileClick(e, letter)">{{ letter }}</button>
                     </li>
                 </ul>
             </li>
@@ -107,20 +121,19 @@ function letterTileClick(e: PointerEvent, letter: string){
         border-radius: 1rem;
 
         display: grid;
-
         grid-template-columns: auto min-content;
+        align-content: center;
+        gap: .5rem;
 
         padding-inline: .5rem;
 
         & .clear{
-            background-color: transparent;
+            --_image: url("/img/cross.svg");
 
-            outline: 0;
-            border: 0;
+            width: 2rem;
+            height: 2rem;
 
-            opacity: .6;
-
-            font-size: 2rem;
+            opacity: 0.8;
         }
     }
 }
