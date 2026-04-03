@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, useTemplateRef } from 'vue'
+import { ref, useTemplateRef, watch } from 'vue'
 
 const gameState = {
     totalRounds: ref(10),
@@ -14,6 +14,14 @@ const sentence = "Test sentence for word making".toLowerCase()
 const words = sentence.split(" ")
 
 const userWord = ref("")
+
+// TODO: create proper logic, now it's only fo demonstration purposes
+watch(userWord, (newValue, _oldValue) => {
+    if(newValue.length === 0)
+        clearWordError()
+    else
+        setWordError(`Word '${newValue}' does not exist`)
+})
 
 // Count up letters in sentence
 const lettersLeft = words
@@ -88,8 +96,18 @@ function clearUserInput(){
     userWord.value = ""
 }
 
+let wordError = ref<null | string>(null)
 
-</script>
+function setWordError(error: string){
+    wordError.value = error
+}
+
+function clearWordError(){
+    wordError.value = null
+}
+
+
+</script>string | null = null
 
 <template>
     <main class="word-in-sentence">
@@ -109,10 +127,9 @@ function clearUserInput(){
         </header>
 
         <section class="user-word">
-            <p class="entered-word">
-                <span>{{ userWord }}</span>
-                <button @click.prevent="clearUserInput()" class="clear round-image-button"></button>
-            </p>
+            <p class="entered-word">{{ userWord }}</p>
+            <button @click.prevent="clearUserInput()" class="clear"></button>
+            <p :class="'word-error' + (wordError ? ' active' : '')">Error: {{ wordError }}</p>
         </section>
 
         <ul class="words">
@@ -184,10 +201,16 @@ function clearUserInput(){
 .user-word{
     width: 50%;
 
+    display: grid;
+    grid-template-columns: min(90%, 40rem) min-content;
+    grid-template-rows: auto 2rem;
+    isolation: isolate;
+
     & .entered-word{
+        box-sizing: content-box;
         border-bottom: .25rem solid #8f64b3;
 
-        border-radius: 1rem;
+        border-radius: 1rem 0 0 1rem;
 
         display: grid;
         grid-template-columns: auto min-content;
@@ -198,13 +221,84 @@ function clearUserInput(){
 
         background-color: #fff;
 
-        & .clear{
-            --_image: url("/img/cross.svg");
+        height: 2rem;
 
-            width: 2rem;
-            height: 2rem;
+        text-transform: uppercase;
+    }
 
-            opacity: 0.8;
+    & .clear{
+        box-sizing: content-box;
+        width: 3rem;
+        height: 3rem;
+
+        border: 0;
+        background-color: white;
+
+        border-bottom: .25rem solid #8f64b3;
+
+        border-radius: 0 1rem 1rem 0;
+
+        position: relative;
+
+        // border-left: 1px solid #8f64b3;
+
+        transition: transform .2s, border-bottom-width .2s, box-shadow .2s;
+
+        &:hover,
+        &:focus-visible{
+            border-bottom-width: .15rem;
+            transform: translateY(.1rem);
+
+            box-shadow: inset .1rem 0rem 0 #0003;
+
+            cursor: pointer;
+        }
+
+        &:active{
+            border-bottom-width: 0rem;
+            transform: translateY(.25rem);
+
+            box-shadow: inset .25rem 0rem 0 #0003;
+
+            cursor: pointer;
+        }
+
+        &::after{
+            content: '';
+            
+            position: absolute;
+            inset: 10%;
+
+            background-color: #8f64b3;
+            mask-image: url("/img/cross.svg");
+            mask-size: contain;
+
+            border-radius: inherit;
+        }
+    }
+
+    & .word-error{
+        grid-column: 1/-1;
+
+        background-color: rgb(231, 74, 74);
+        color: white;
+        width: 95%;
+
+        justify-self: center;
+
+        border-radius: 0 0 .5rem .5rem;
+
+        padding-inline: .5rem;
+
+        border-bottom: .25rem solid #0003;
+
+        transform: translateY(-100%);
+        z-index: -1;
+
+        transition: transform .2s ease-in-out;
+
+        &.active{
+            transform: translateY(0);
         }
     }
 }
