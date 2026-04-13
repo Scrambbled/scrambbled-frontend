@@ -1,7 +1,7 @@
-import { io, Socket } from "socket.io-client";
+import { Socket } from "socket.io-client";
 import type { EndRoundPayload, GameOverPayload, GameStartPayload, PlayerPassedPayload, StartGameData, SubmitWordData, TurnStartPayload, WordResultPayload } from "./DTOs";
+import type { Listener } from "../../common_types";
 
-type Listener<Data> = (data: Data) => any
 
 export interface WordsInSentenceListeners{
     onStartGame: Listener<GameStartPayload>,
@@ -27,7 +27,7 @@ export interface WordsInSentenceActions{
     pass: () => any,
 }
 
-export const useWordsInSentenceSocket = (socket: Socket, listeners: WordsInSentenceListeners) => {
+export const wordsInSentenceSocketWrapper = (socket: Socket, listeners: WordsInSentenceListeners) => {
     mapListenersToEvents(listeners)
         .forEach(([name, listener]) => socket.on(name, listener))
 

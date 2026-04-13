@@ -3,7 +3,7 @@ export interface SubmitWordData {
 }
 
 export interface StartGameData {
-  rounds?: number; // default = 3 on backend
+  rounds?: number; // defaults on backend
 }
 
 export interface GameStartPayload {
