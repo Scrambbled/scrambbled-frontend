@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { ref, useTemplateRef, warn } from "vue";
 import ProfileEdit from "../../components/ProfileEdit.vue";
-import { useSocket } from "../../api/socket/Socket";
+import { useGameSocket } from "../../api/socket/Socket";
+import type { UserProfileData } from "../../types/user_types";
+import { useRouter } from "vue-router";
 
 const currentMenuIndex = ref(1)
 
@@ -17,7 +19,7 @@ function moveTo(frame: FrameType){
 }
 
 
-const socket = useSocket()
+const socket = useGameSocket()
 const accessCodeRef = useTemplateRef("accessCode")
 
 function connect(){
@@ -28,7 +30,18 @@ function connect(){
         return
     }
 
-    socket.connect(accessCode)
+    if(userProfileData !== null){
+            useRouter().push(`/game?accessCode=${accessCode}`)
+    } else {
+        console.error("'userProfileData' is undefined and cannot be sent in a socket request");
+    }
+}
+
+let userProfileData: UserProfileData | null = null;
+
+function updateProfileData(profileData: UserProfileData){
+    userProfileData = profileData
+    // console.log(userProfileData);
 }
 
 </script>
@@ -52,7 +65,7 @@ function connect(){
             </div>
         </div>
 
-       <ProfileEdit class="framed-box"/>
+       <ProfileEdit @change="updateProfileData" class="framed-box"/>
     </div>
 </template>
 

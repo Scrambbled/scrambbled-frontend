@@ -4,7 +4,7 @@ import { router } from './router';
 
 
 onMounted(() => {
-  router.push("/word")
+  // router.push("/word")
 })
 
 </script>

@@ -1,24 +1,68 @@
 import { io, Socket } from "socket.io-client"
+import type { Listener } from "../../common_types"
 
-let socket: Socket
-
-function connectToSocket(accessCode: string){
-    if(socket !== undefined)
-        return 
-
-    socket = io(`${import.meta.env.VITE_SOCKET}/?accessCode=${accessCode}`, {
-        
-    })
-
-    socket.on("connect", () => {
-        console.log("Connected to a game session");
-    })
-
-    socket.on("disconnect", () => {
-        console.log("Disconnected from a game session");
-    })
+// Common events and their payload types
+type CommonEventsAndPayloads = {
+    'chat message': string,
+    'connect': {},
+    'disconnect': {},
 }
+type CommonEvent = keyof CommonEventsAndPayloads
+type CommonEventListener<E extends CommonEvent> = Listener<CommonEventsAndPayloads[E]>
 
-export const useSocket = () => ({
-    connect: (accessCode: string) => connectToSocket(accessCode)
-})
+let socket: Socket | null = null
+
+/**
+ * Gives access to main game socket
+ */
+export const useGameSocket = () => {
+    // Stores handlers register for the current use
+    const registeredHandlers: {[key in CommonEvent]: CommonEventListener<key>[]} = {
+        "chat message": [],
+        "connect": [],
+        "disconnect": []
+    }
+
+    return {
+        socket,
+
+        addCommonEventHandler: <E extends CommonEvent>(eventName: E, handler: CommonEventListener<E>) => {
+            if(socket === null) return
+            
+            registeredHandlers[eventName].push(handler)
+            socket.on(eventName as string, (...data) => {
+                handler(data[0])
+            })
+        },
+
+        onceCommonEventHandler: <E extends CommonEvent>(eventName: E, handler: CommonEventListener<E>) => {
+            if(socket === null) return
+
+            socket.once(eventName as string, (...data) => {
+                handler(data[0])
+            })
+        },
+
+        cleanUp: () => {
+            // Remove registered listeners from socket
+            for(const event in registeredHandlers){
+                registeredHandlers[event as CommonEvent].forEach(handler => {
+                    socket?.removeListener(event, handler)
+                })
+            }
+        },
+
+        connect: (accessCode: string, icon: string, name: string) => {
+            if(socket !== null){
+                socket.close()
+            }
+
+            socket = io({query: {accessCode}, transports: ["websocket"]})
+        },
+
+        isConnected: () => socket !== null && socket.connected,
+
+        // TODO: Change to ID received from server as Socket.io discourages using socket.id
+        getClientId: () => socket?.id
+    }
+}

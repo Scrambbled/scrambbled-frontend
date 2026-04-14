@@ -1,6 +1,7 @@
 import type { UserIcon } from "../types/user_types"
 
-const API = `${import.meta.env.VITE_API}`
+// const API = `${import.meta.env.VITE_API}`
+const API = `/api`
 
 const getProfileIcons = () => fetch(`${API}/user/icon/all`)
 

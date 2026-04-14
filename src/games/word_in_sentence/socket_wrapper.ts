@@ -33,9 +33,11 @@ export const wordsInSentenceSocketWrapper = (socket: Socket, listeners: WordsInS
 
     return {
         submitWord: word => {
+            console.log('submitWord called, socket.connected:', socket.connected, 'socket.id:', socket.id);
             socket.emit('submit_word', {
                 word
             } as SubmitWordData)
+            console.log('submit_word event emitted');
         },
         startGame: data => {
             socket.emit('start_game', data)

@@ -4,7 +4,7 @@ import { useApiHandler } from '../api/ApiHandler';
 import type { UserIcon, UserProfileData } from '../types/user_types';
 import { getRandomName } from '../misc/usernames';
 
-defineEmits<{
+const emit = defineEmits<{
     change: [data: UserProfileData]
 }>();
 
@@ -18,6 +18,7 @@ let userIcons: UserIcon[] = []
 
 function nextUserIcon(){
     selectedIconIndex.value = (selectedIconIndex.value + 1) % userIcons.length
+    emitChange()
 }
 
 onMounted(() => {
@@ -26,9 +27,19 @@ onMounted(() => {
 
         if(userIcons.length > 0){
             selectedIconIndex.value = 0;
+            emitChange()
         }
     })
 })
+
+function emitChange(){
+    if(userIcons.length !== 0 && selectedIconIndex.value !== -1){
+        emit("change", {
+            iconName: userIcons[selectedIconIndex.value]?.name ?? "No icon available",
+            username: username.value
+        })
+    }
+}
 </script>
 
 <template>
@@ -39,7 +50,7 @@ onMounted(() => {
             </button>
         </div>
 
-        <input type="text" class="username text-input" placeholder="Username" :value="username">
+        <input type="text" class="username text-input" @change="emitChange()" placeholder="Username" :value="username" autocomplete="false">
     </div>
 </template>
 

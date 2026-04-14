@@ -1,46 +1,144 @@
-<script setup lang="ts">
+ <script setup lang="ts">
 import { ref, useTemplateRef, watch } from 'vue'
+import { useGameSocket } from '../../api/socket/Socket'
+import { wordsInSentenceSocketWrapper } from './socket_wrapper'
+import type { TurnStartPayload } from './DTOs'
 
-const gameState = {
-    totalRounds: ref(10),
-    currentRound: ref(3),
+const gamePhases = ['game_over', 'active_turn', 'other_player_turn', 'round_end'] as const
+type GamePhases = typeof gamePhases[number]
+let currentGamePhase = ref<GamePhases | null>(null)
+let gamePhaseData: any = null
 
-    points: ref(37),
+const gameTracker = {
+    totalRounds: ref(0),
+    currentRound: ref(0),
+
+    // Points gained for turns in current round
+    turnPoints: ref(0),
+    // Points gained in all rounds
+    roundPoints: ref(0),
 
     usedWords: ref<string[]>(["test", "sentence"]),
+
+    sentence: ref<string | null>(null),
+    words: ref<Array<string> | null>(null),
+    lettersLeft: new Map<string, number>(),
+
+    // Expect WordResult event
+    expectWordCheck: false,
+    wasWordCorrect: ref<boolean | null>(null),
 }
 
-const sentence = "Test sentence for word making".toLowerCase()
-const words = sentence.split(" ")
+function calcLettersLeft(){
+    if(gameTracker.words.value === null)
+        return;
+
+    gameTracker.lettersLeft = gameTracker.words.value
+        // Into letters
+        .flatMap(word => word.split(''))
+        // Count 'em up'
+        .reduce(
+            (acc: Map<string, number>, letter) => {
+                // If letter exists - increment, else create entry with value 1
+                if(acc.has(letter))
+                    acc.set(letter, acc.get(letter) as number + 1)
+                else
+                    acc.set(letter, 1)
+
+                return acc
+            }, 
+            new Map<string, number>()
+        )
+}
+
+const isActiveUser = ref(false)
+
+watch(currentGamePhase, (new_phase, old_phase) => {
+    if(gamePhaseData === null){
+        console.error(`Game moved from phase '${old_phase}' to phase '${new_phase}', but no phase data was supplied`)
+    }
+
+    console.log('Phase changed: ', old_phase, ' -> ', new_phase);
+    
+
+    if(new_phase === "active_turn" || new_phase === "other_player_turn"){
+        gameTracker.sentence.value = (gamePhaseData as TurnStartPayload).baseSentence
+        gameTracker.words.value = gameTracker.sentence.value.split(' ')
+        calcLettersLeft()
+    }
+
+    if(new_phase === "active_turn"){
+        isActiveUser.value = true
+    }
+})
+
+// Main game socket
+const socket = useGameSocket()
+const socketConnected = ref(socket.isConnected())
+
+socket.addCommonEventHandler('connect', () => {
+    socketConnected.value = true
+})
+
+socket.addCommonEventHandler('disconnect', () => {
+    socketConnected.value = false
+})
+
+// Game socket with listeners for this specific game
+const wrappedGameSocket = socket.socket !== null ? wordsInSentenceSocketWrapper(socket.socket, {
+    onGameOver: (data) => { 
+        console.log("Game over: ", data)
+        gamePhaseData = data
+        currentGamePhase.value = 'game_over'
+     },
+    onPlayerPass: (data) => { 
+        console.log("Player pass: ", data)
+     },
+    onRoundEnd: (data) => { 
+        console.log("Round ended: ", data)
+        gamePhaseData = data
+        currentGamePhase.value = 'round_end'
+     },
+    onStartGame: (data) => { 
+        console.log("Game started: ", data)
+        gameTracker.totalRounds.value = data.totalRounds
+     },
+    onTurnStart: (data) => { 
+        console.log("Turn started: ", data)
+
+        gameTracker.wasWordCorrect.value = null
+
+        gamePhaseData = data
+        currentGamePhase.value = 
+            data.activePlayerId === socket.getClientId()
+            ? 'active_turn'
+            : 'other_player_turn'
+     },
+    onWordResult: (data) => { 
+        console.log("Word result: ", data)
+
+        if(!gameTracker.expectWordCheck){
+            console.warn("Got word result event when not waiting for it")
+            return
+        }
+
+        gameTracker.wasWordCorrect.value = data.success
+     },
+}) : null
+
+// console.log(thisGameSocket);
+const userId = socket.getClientId()
 
 const userWord = ref("")
 
-// TODO: create proper logic, now it's only fo demonstration purposes
-watch(userWord, (newValue, _oldValue) => {
-    if(newValue.length === 0)
-        clearWordError()
-    else
-        setWordError(`Word '${newValue}' does not exist`)
-})
-
-// Count up letters in sentence
-const lettersLeft = words
-    .flatMap(word => word.split(''))
-    .reduce(
-        (acc: Map<string, number>, letter) => {
-            // If letter exists - increment, else create entry with value 1
-            if(acc.has(letter))
-                acc.set(letter, acc.get(letter) as number + 1)
-            else
-                acc.set(letter, 1)
-
-            return acc
-        }, 
-        new Map<string, number>()
-    )
-
 function letterTileClick(e: PointerEvent, letter: string){
-    if(!lettersLeft.has(letter)){
+    if(gameTracker.lettersLeft.size === 0){
+        return
+    }
+
+    clearWordError()
+
+    if(!gameTracker.lettersLeft.has(letter)){
         console.error(`Clicked tile with letter '${letter}', which is not in the sentence`)
         return
     }
@@ -55,7 +153,7 @@ function letterTileClick(e: PointerEvent, letter: string){
 
     if(alreadyActive){
         target.classList.remove("active")
-        lettersLeft.set(letter, lettersLeft.get(letter) as number + 1)
+        gameTracker.lettersLeft.set(letter, gameTracker.lettersLeft.get(letter) as number + 1)
 
         const letterIndex = userWord.value.lastIndexOf(letter)
 
@@ -69,17 +167,32 @@ function letterTileClick(e: PointerEvent, letter: string){
     } else {
         target.classList.add("active")
 
-        if(lettersLeft.get(letter) === 0){
+        if(gameTracker.lettersLeft.get(letter) === 0){
             console.error(`No more '${letter}' letters in lettersLeft`)
             return
         }
 
-        lettersLeft.set(letter, lettersLeft.get(letter) as number - 1)
+        gameTracker.lettersLeft.set(letter, gameTracker.lettersLeft.get(letter) as number - 1)
         userWord.value += letter
     }
     
-    console.log(lettersLeft);
+    console.log(gameTracker.lettersLeft);
+}
+
+function sendUserWord(){
+    if(!isActiveUser){
+        console.warn("User is not an active user.")
+        return
+    }
+
+    if(wrappedGameSocket === null){
+        console.error("wrapped socket is null when submitting user word")
+    }
+
+    console.log("SENDING A WORD");
     
+
+    wrappedGameSocket?.submitWord(userWord.value)
 }
 
 const letterButtonsRef = useTemplateRef("letter-btn")
@@ -96,6 +209,12 @@ function clearUserInput(){
     userWord.value = ""
 }
 
+watch(gameTracker.wasWordCorrect, (value) => {
+    if(value === false){
+        setWordError("This is not a correct word")
+    }
+})
+
 let wordError = ref<null | string>(null)
 
 function setWordError(error: string){
@@ -107,22 +226,22 @@ function clearWordError(){
 }
 
 
-</script>string | null = null
+</script>
 
 <template>
     <main class="word-in-sentence">
 
         <header class="game-info framed-box">
             <p class="round">
-                <span class="current-round">{{ gameState.currentRound }}</span>
+                <span class="current-round">{{ gameTracker.currentRound }}</span>
                 /
-                <span class="total-rounds">{{ gameState.totalRounds }}</span>
+                <span class="total-rounds">{{ gameTracker.totalRounds }}</span>
             </p>
 
-            <p></p>
+            <p>{{ socketConnected ? 'Connected': 'Disconnected' }}</p>
 
             <p class="points">
-                {{ gameState.points }}
+                {{ gameTracker.turnPoints }} / {{ gameTracker.roundPoints }}
             </p>
         </header>
 
@@ -130,10 +249,12 @@ function clearWordError(){
             <p class="entered-word">{{ userWord }}</p>
             <button @click.prevent="clearUserInput()" class="clear"></button>
             <p :class="'word-error' + (wordError ? ' active' : '')">Error: {{ wordError }}</p>
+
+            <button class="submit-user-word press-in-button" @click="sendUserWord()">Submit</button>
         </section>
 
         <ul class="words">
-            <li class="word" v-for="word in words">
+            <li v-if="gameTracker.words.value !== null" class="word" v-for="word in gameTracker.words.value">
                 <ul class="letters">
                     <li class="letter" v-for="letter in word.split('')">
                         <button class="letter-tile" ref="letter-btn" @click.prevent="e => letterTileClick(e, letter)">{{ letter }}</button>
@@ -143,7 +264,7 @@ function clearWordError(){
         </ul>
 
         <ul class="used-words">
-            <li class="used-word" v-for="word in gameState.usedWords.value">{{ word }}</li>
+            <li class="used-word" v-for="word in gameTracker.usedWords.value">{{ word }}</li>
         </ul>
     </main>
 </template>
@@ -199,14 +320,21 @@ function clearWordError(){
 }
 
 .user-word{
+    --_input-height: 3rem;
     width: 50%;
 
     display: grid;
-    grid-template-columns: min(90%, 40rem) min-content;
-    grid-template-rows: auto 2rem;
+    grid-template-columns: min(90%, 40rem) min-content min-content;
+    grid-template-rows: var(--_input-height) 2rem;
+    grid-template-areas: 
+        "user-in clear submit"
+        "error error .";
+
     isolation: isolate;
 
     & .entered-word{
+        grid-area: user-in;
+
         box-sizing: content-box;
         border-bottom: .25rem solid #8f64b3;
 
@@ -221,15 +349,17 @@ function clearWordError(){
 
         background-color: #fff;
 
-        height: 2rem;
+        height: calc(var(--_input-height) - .5rem * 2);
 
         text-transform: uppercase;
     }
 
     & .clear{
+        grid-area: clear;
+
         box-sizing: content-box;
-        width: 3rem;
-        height: 3rem;
+        width: var(--_input-height);
+        height: var(--_input-height);
 
         border: 0;
         background-color: white;
@@ -278,7 +408,7 @@ function clearWordError(){
     }
 
     & .word-error{
-        grid-column: 1/-1;
+        grid-area: error;
 
         background-color: rgb(231, 74, 74);
         color: white;
@@ -300,6 +430,11 @@ function clearWordError(){
         &.active{
             transform: translateY(0);
         }
+    }
+
+    & .submit-user-word{
+        grid-area: submit;
+        margin-left: 1rem;
     }
 }
 
