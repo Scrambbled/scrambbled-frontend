@@ -16,18 +16,25 @@
     border-top: .25rem solid var(--_shadow-color);
     border-bottom: .5rem solid var(--_outline-color);
 
-    cursor: pointer;
-
     transition: all 100ms ease-in;
 
-    &:hover, &:focus-visible{
+    background-color: white;
+
+    &:hover:not(:disabled), &:focus-visible:not(:disabled){
         border-bottom: .25rem solid var(--_outline-color);
         transform: translateY(.25rem);
+
+        cursor: pointer;
     }
 
-    &:active{
+    &:active:not(:disabled){
         border-bottom: .2rem solid var(--_outline-color);
         transform: translateY(.4rem);
+    }
+
+    &:disabled{
+        cursor: not-allowed;
+        background-color: rgb(211, 211, 211);
     }
 }
 

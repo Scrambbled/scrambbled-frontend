@@ -9,7 +9,7 @@ import InfoBar from './InfoBar.vue'
 
 const gamePhases = ['game_over', 'active_turn', 'other_player_turn', 'round_end', 'waiting_for_game'] as const
 type GamePhases = typeof gamePhases[number]
-let currentGamePhase = ref<GamePhases>('waiting_for_game')
+let currentGamePhase = ref<GamePhases>('active_turn')
 let gamePhaseData: any = null
 
 const gameTracker = {
@@ -161,7 +161,8 @@ let caption = new Map<GamePhases, string>([
     ['other_player_turn', 'Other player is choosing a word...'],
     ['game_over', 'All good things come to an end'],
     ['round_end', 'Round results']
-]).get(currentGamePhase.value) ?? '';
+]).get(currentGamePhase.value) ?? '---';
+
 
 </script>
 
@@ -178,6 +179,7 @@ let caption = new Map<GamePhases, string>([
 
         <GameScreen 
             v-if="currentGamePhase === 'active_turn' || currentGamePhase === 'other_player_turn'" 
+            :is-active="currentGamePhase === 'active_turn'"
             :game-tracker="gameTracker" 
             ref="game-screen" 
             @word-submit="sendUserWord"
@@ -198,5 +200,8 @@ let caption = new Map<GamePhases, string>([
     display: grid;
     grid-template-rows: min-content auto;
     justify-items: center;
+    gap: 2rem;
+
+    overflow: hidden;
 }
 </style>

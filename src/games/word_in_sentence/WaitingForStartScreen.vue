@@ -25,7 +25,7 @@
     font-size: min(3.5rem, max(2rem, calc(100vw / 18)));
 
     color: white;
-    text-shadow: 0 0 .2rem #0007;
+    // text-shadow: 0 0 .2rem #0007;
 
     display: grid;
     justify-items: center;

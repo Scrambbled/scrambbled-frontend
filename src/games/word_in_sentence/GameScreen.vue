@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { ref, useTemplateRef } from 'vue';
 import type { GameTracker } from './WordInSentence.vue';
+import Scoreboard from './Scoreboard.vue';
 
-
-const {gameTracker} = defineProps<{gameTracker: GameTracker}>()
+const {gameTracker, isActive} = defineProps<{gameTracker: GameTracker, isActive: boolean}>()
 
 const emit = defineEmits<{wordSubmit: [word: string]}>()
 
@@ -86,6 +86,17 @@ defineExpose({
 });
 
 
+{
+    // Testing used words bounds
+    const testWords = ["Some", "common", "words", "might", "be", "very", "hard", "to", "to", "find", "in", "a", "sentence", "or", "random", "letters"];
+
+    const interval = setInterval(() => {
+        if(testWords.length === 0) clearInterval(interval)
+        else gameTracker.usedWords.value.push(testWords.pop() as string)
+    }, 1000)
+}
+
+
 </script>
 
 <template>
@@ -94,7 +105,7 @@ defineExpose({
         <button @click.prevent="clearUserInput()" class="clear"></button>
         <p :class="'word-error' + (wordError ? ' active' : '')">Error: {{ wordError }}</p>
 
-        <button class="submit-user-word press-in-button" @click="emit('wordSubmit', userWord)">Submit</button>
+        <button class="submit-user-word press-in-button" @click="emit('wordSubmit', userWord)" :disabled="!isActive">Submit</button>
     </section>
 
     <ul class="words">
@@ -110,9 +121,27 @@ defineExpose({
     <ul class="used-words">
         <li class="used-word" v-for="word in gameTracker.usedWords.value">{{ word }}</li>
     </ul>
+
+    <Scoreboard class="scoreboard"/>
 </template>
 
 <style lang="scss" scoped>
+
+.scoreboard{
+    position: absolute;
+    left: 100%;
+    top: 50%;
+
+    transform: translateX(calc(-1 * (var(--_icon-size) + .5rem)));
+    translate: 0% -50%;
+
+    transition: transform .2s;
+
+    &:hover{
+        transform: translateX(-100%);
+    }
+}
+
 .user-word{
     --_input-height: 3rem;
     width: 50%;
@@ -298,20 +327,31 @@ defineExpose({
     grid-auto-rows: min-content;
     gap: .25rem;
 
+    align-self: end;
+
     background-color: #fff;
-    padding: .5rem;
 
     color: #5c5858;
-
-    width: 80%;
-
+    
+    width: min(80%, 30rem);
+    max-height: 100%;
+    
+    padding: .5rem; 
+    
     border-radius: .75rem .75rem 0 0;
+
+    overflow-y: scroll;
+
+    position: relative;
 
     & .used-word{
         border-bottom: 2px solid #8f64b3;
         padding-left: .25rem;
 
         text-transform: uppercase;
+
+        text-decoration: line-through;
+        text-decoration-color: rgb(from currentColor r g b / .5);
     }
 }
 </style>
