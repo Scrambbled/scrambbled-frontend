@@ -85,7 +85,7 @@ socket.addCommonEventHandler('disconnect', () => {
 })
 
 // Game socket with listeners for this specific game
-const wrappedGameSocket = socket.socket !== null ? wordsInSentenceSocketWrapper(socket.socket, {
+const wrappedGameSocket = socket.socket !== null ? wordsInSentenceSocketWrapper(socket, {
     onGameOver: (data) => { 
         console.log("Game over: ", data)
         gamePhaseData = data

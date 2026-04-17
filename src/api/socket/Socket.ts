@@ -63,6 +63,15 @@ export const useGameSocket = () => {
         isConnected: () => socket !== null && socket.connected,
 
         // TODO: Change to ID received from server as Socket.io discourages using socket.id
-        getClientId: () => socket?.id
+        getClientId: () => socket?.id,
+
+        sendGameSpecificEvent: (name: string, payload: any, ack_listener: Listener<any> | null = null) => {
+            socket?.emit('game-specific-event', {
+                eventName: name,
+                data: payload,
+            }, ack_listener)
+        },
     }
 }
+
+export type GameSocket = ReturnType<typeof useGameSocket>

@@ -1,6 +1,7 @@
 import { Socket } from "socket.io-client";
 import type { EndRoundPayload, GameOverPayload, GameStartPayload, PlayerPassedPayload, StartGameData, SubmitWordData, TurnStartPayload, WordResultPayload } from "./DTOs";
 import type { Listener } from "../../common_types";
+import type { GameSocket } from "../../api/socket/Socket";
 
 
 export interface WordsInSentenceListeners{
@@ -27,23 +28,19 @@ export interface WordsInSentenceActions{
     pass: () => any,
 }
 
-export const wordsInSentenceSocketWrapper = (socket: Socket, listeners: WordsInSentenceListeners) => {
+export const wordsInSentenceSocketWrapper = (socket: GameSocket, listeners: WordsInSentenceListeners) => {
     mapListenersToEvents(listeners)
-        .forEach(([name, listener]) => socket.on(name, listener))
+        .forEach(([name, listener]) => socket.socket?.on(name, listener))
 
     return {
         submitWord: word => {
-            console.log('submitWord called, socket.connected:', socket.connected, 'socket.id:', socket.id);
-            socket.emit('submit_word', {
-                word
-            } as SubmitWordData)
-            console.log('submit_word event emitted');
+            socket.sendGameSpecificEvent("submit_word", { word } as SubmitWordData)
         },
         startGame: data => {
-            socket.emit('start_game', data)
+            socket.sendGameSpecificEvent("submit_word", data)
         },
         pass: () => {
-            socket.emit("pass", {})
+            socket.sendGameSpecificEvent("pass", {})
         }
     } as WordsInSentenceActions
 }
