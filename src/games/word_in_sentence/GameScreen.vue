@@ -96,11 +96,18 @@ defineExpose({
     }, 1000)
 }
 
+const passed = ref(false)
 
 </script>
 
 <template>
     <section class="user-word">
+        <div :class="'pass-flag' + (passed ? ' shown' : '')">
+            <img src="/img/white_flag.svg" alt="">
+        </div>
+        <button class="pass press-in-button" :disabled="!isActive" @click="passed = !passed">Pass</button>
+        
+
         <p class="entered-word">{{ userWord }}</p>
         <button @click.prevent="clearUserInput()" class="clear"></button>
         <p :class="'word-error' + (wordError ? ' active' : '')">Error: {{ wordError }}</p>
@@ -147,16 +154,52 @@ defineExpose({
     width: 50%;
 
     display: grid;
-    grid-template-columns: min(90%, 40rem) min-content min-content;
+    grid-template-columns: min-content min(90%, 40rem) min-content min-content;
     grid-template-rows: var(--_input-height) 2rem;
     grid-template-areas: 
-        "user-in clear submit"
-        "error error .";
+        "pass user-in clear submit"
+        ". error error .";
 
     isolation: isolate;
 
+    position: relative;
+
+    & .pass{
+        grid-area: pass;
+    }
+
+    & .pass-flag{
+        
+        grid-area: pass;
+
+        position: absolute;
+        right: 1rem;
+        bottom: 90%;
+
+        pointer-events: none;
+
+        height: 100%;
+        aspect-ratio: 1;
+
+        transform-origin: right bottom;
+
+        rotate: z -90deg;
+
+        transition: rotate .2s ease-in;
+
+        & > img{
+            object-fit: contain;
+        }
+
+        &.shown{
+            rotate: z 0deg;
+        }
+    }
+
     & .entered-word{
         grid-area: user-in;
+
+        margin-left: 1rem;
 
         box-sizing: content-box;
         border-bottom: .25rem solid #8f64b3;
