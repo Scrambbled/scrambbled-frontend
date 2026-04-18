@@ -98,6 +98,8 @@ defineExpose({
 
 const passed = ref(false)
 
+const cantTakeAction = passed || !isActive
+
 </script>
 
 <template>
@@ -105,14 +107,14 @@ const passed = ref(false)
         <div :class="'pass-flag' + (passed ? ' shown' : '')">
             <img src="/img/white_flag.svg" alt="">
         </div>
-        <button class="pass press-in-button" :disabled="!isActive" @click="passed = !passed">Pass</button>
+        <button class="pass press-in-button" :disabled="cantTakeAction" @click="passed = !passed">Pass</button>
         
 
         <p class="entered-word">{{ userWord }}</p>
         <button @click.prevent="clearUserInput()" class="clear"></button>
         <p :class="'word-error' + (wordError ? ' active' : '')">Error: {{ wordError }}</p>
 
-        <button class="submit-user-word press-in-button" @click="emit('wordSubmit', userWord)" :disabled="!isActive">Submit</button>
+        <button class="submit-user-word press-in-button" @click="emit('wordSubmit', userWord)" :disabled="cantTakeAction">Submit</button>
     </section>
 
     <ul class="words">
@@ -151,7 +153,8 @@ const passed = ref(false)
 
 .user-word{
     --_input-height: 3rem;
-    width: 50%;
+
+    width: 100%;
 
     display: grid;
     grid-template-columns: min-content min(90%, 40rem) min-content min-content;
@@ -159,6 +162,7 @@ const passed = ref(false)
     grid-template-areas: 
         "pass user-in clear submit"
         ". error error .";
+    justify-content: center;
 
     isolation: isolate;
 
