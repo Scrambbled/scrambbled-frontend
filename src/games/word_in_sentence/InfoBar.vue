@@ -98,6 +98,7 @@ const {
 
         & > img{
             object-fit: contain;
+            width: 6rem;
         }
     }
 
