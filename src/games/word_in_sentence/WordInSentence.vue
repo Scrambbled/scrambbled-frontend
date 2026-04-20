@@ -202,12 +202,14 @@ let caption = new Map<GamePhases, string>([
     background-image: linear-gradient(to bottom right, #58e6bb, #ebbe43);
 
     height: 100%;
+    width: 100%;
 
     display: grid;
     grid-template-rows: min-content auto;
     justify-items: center;
     gap: 2rem;
 
-    overflow: hidden;
+    overflow-x: hidden;
+    position: relative;
 }
 </style>
