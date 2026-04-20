@@ -69,7 +69,7 @@ watch(currentGamePhase, (new_phase, old_phase) => {
     
 
     if(new_phase === "active_turn" || new_phase === "other_player_turn"){
-        gameTracker.sentence.value = (gamePhaseData as TurnStartPayload).baseSentence
+        gameTracker.sentence.value = (gamePhaseData as TurnStartPayload).currentPool
         gameTracker.words.value = gameTracker.sentence.value.split(' ')
         calcLettersLeft()
     }
@@ -116,11 +116,12 @@ const wrappedGameSocket = socket.socket !== null ? wordsInSentenceSocketWrapper(
         gameTracker.wasWordCorrect.value = null
 
         gamePhaseData = data
+
         currentGamePhase.value = 
             data.activePlayerId === socket.getClientId()
             ? 'active_turn'
             : 'other_player_turn'
-     },
+    },
     onWordResult: (data) => { 
         console.log("Word result: ", data)
 
@@ -130,11 +131,14 @@ const wrappedGameSocket = socket.socket !== null ? wordsInSentenceSocketWrapper(
         }
 
         gameTracker.wasWordCorrect.value = data.success
-     },
+    },
+    onGameSync: data => {
+        console.log("Game sync: ", data)
+    }
 }) : null
 
 // console.log(thisGameSocket);
-const userId = socket.getClientId()
+// const userId = socket.getClientId()
 
 function sendUserWord(word: string){
     if(!isActiveUser){

@@ -6,16 +6,21 @@ export interface StartGameData {
   rounds?: number; // defaults on backend
 }
 
-export interface GameStartPayload {
-  baseSentence: string;
+export interface StartRoundPayload {
+  round: number;
+}
+
+export interface GameStartedPayload {
+  currentPool: string;
   totalRounds: number;
-  players: string[]; // UUID[]
+  players: string[];
+  mode: string;
 }
 
 export interface TurnStartPayload {
-  activePlayerId: string; // UUID
+  activePlayerId: string;
   currentRound: number;
-  baseSentence: string;
+  currentPool: string;
 }
 
 export interface WordResultPayload {
@@ -23,19 +28,28 @@ export interface WordResultPayload {
   word: string;
   pointsGained: number;
   message: string;
-  updatedScores: Record<string, number>; // Map<UUID, Int>
+  updatedScores: Record<string, number>;
 }
 
 export interface PlayerPassedPayload {
-  playerId: string; // UUID
+  playerId: string;
 }
 
 export interface EndRoundPayload {
-  winnerId?: string | null; // UUID?
+  winnerId: string | null;
   scores: Record<string, number>;
 }
 
 export interface GameOverPayload {
-  winnerId?: string | null; // UUID?
+  winnerId: string | null;
   finalScores: Record<string, number>;
+}
+
+export interface GameSyncPayload {
+  currentPool: string;
+  currentRound: number;
+  maxRounds: number;
+  activePlayerId: string;
+  roundScores: Record<string, number>;
+  gameScores: Record<string, number>;
 }

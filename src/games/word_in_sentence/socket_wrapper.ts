@@ -1,16 +1,16 @@
-import { Socket } from "socket.io-client";
-import type { EndRoundPayload, GameOverPayload, GameStartPayload, PlayerPassedPayload, StartGameData, SubmitWordData, TurnStartPayload, WordResultPayload } from "./DTOs";
+import type { EndRoundPayload, GameOverPayload, GameStartedPayload, GameSyncPayload, PlayerPassedPayload, StartGameData, SubmitWordData, TurnStartPayload, WordResultPayload } from "./DTOs";
 import type { Listener } from "../../common_types";
 import type { GameSocket } from "../../api/socket/Socket";
 
 
 export interface WordsInSentenceListeners{
-    onStartGame: Listener<GameStartPayload>,
+    onStartGame: Listener<GameStartedPayload>,
     onTurnStart: Listener<TurnStartPayload>,
     onWordResult: Listener<WordResultPayload>,
     onPlayerPass: Listener<PlayerPassedPayload>,
     onRoundEnd: Listener<EndRoundPayload>,
     onGameOver: Listener<GameOverPayload>,
+    onGameSync: Listener<GameSyncPayload>,
 }
 
 const mapListenersToEvents = (listeners: WordsInSentenceListeners) => [
@@ -20,6 +20,7 @@ const mapListenersToEvents = (listeners: WordsInSentenceListeners) => [
     ['user_passed', listeners.onPlayerPass],
     ['round_end', listeners.onRoundEnd],
     ['game_over', listeners.onGameOver],
+    ['game_sync', listeners.onGameSync],
 ] as [string, Listener<any>][]
 
 export interface WordsInSentenceActions{
