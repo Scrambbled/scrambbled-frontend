@@ -98,7 +98,8 @@ defineExpose({
 
 const passed = ref(false)
 
-const cantTakeAction = passed || !isActive
+// Disable buttons when passed or it's other player's turn
+const disabledButton = passed.value || !isActive
 
 </script>
 
@@ -107,14 +108,14 @@ const cantTakeAction = passed || !isActive
         <div :class="'pass-flag' + (passed ? ' shown' : '')">
             <img src="/img/white_flag.svg" alt="">
         </div>
-        <button class="pass press-in-button" :disabled="cantTakeAction" @click="passed = !passed">Pass</button>
+        <button class="pass press-in-button" :disabled="disabledButton" @click="passed = !passed">Pass</button>
         
 
         <p class="entered-word">{{ userWord }}</p>
         <button @click.prevent="clearUserInput()" class="clear"></button>
         <p :class="'word-error' + (wordError ? ' active' : '')">Error: {{ wordError }}</p>
 
-        <button class="submit-user-word press-in-button" @click="emit('wordSubmit', userWord)" :disabled="cantTakeAction">Submit</button>
+        <button class="submit-user-word press-in-button" @click="emit('wordSubmit', userWord)" :disabled="disabledButton">Submit</button>
     </section>
 
     <ul class="words">
@@ -181,8 +182,7 @@ const cantTakeAction = passed || !isActive
         bottom: 90%;
 
         pointer-events: none;
-
-        height: 100%;
+        overflow: hidden;
         aspect-ratio: 1;
 
         transform-origin: right bottom;
@@ -193,6 +193,8 @@ const cantTakeAction = passed || !isActive
 
         & > img{
             object-fit: contain;
+            // height: 5rem;
+            width: 3rem;
         }
 
         &.shown{

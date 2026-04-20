@@ -11,7 +11,7 @@ import GameOverScreen from './GameOverScreen.vue'
 
 const gamePhases = ['game_over', 'active_turn', 'other_player_turn', 'round_end', 'waiting_for_game'] as const
 type GamePhases = typeof gamePhases[number]
-let currentGamePhase = ref<GamePhases>('game_over')
+let currentGamePhase = ref<GamePhases>('other_player_turn')
 let gamePhaseData: any = null
 
 const gameTracker = {
