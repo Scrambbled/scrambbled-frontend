@@ -7,10 +7,11 @@ import GameScreen from './GameScreen.vue'
 import WaitingForStartScreen from './WaitingForStartScreen.vue'
 import InfoBar from './InfoBar.vue'
 import RoundEndScreen from './RoundEndScreen.vue'
+import GameOverScreen from './GameOverScreen.vue'
 
 const gamePhases = ['game_over', 'active_turn', 'other_player_turn', 'round_end', 'waiting_for_game'] as const
 type GamePhases = typeof gamePhases[number]
-let currentGamePhase = ref<GamePhases>('round_end')
+let currentGamePhase = ref<GamePhases>('game_over')
 let gamePhaseData: any = null
 
 const gameTracker = {
@@ -189,6 +190,8 @@ let caption = new Map<GamePhases, string>([
         <WaitingForStartScreen v-else-if="currentGamePhase === 'waiting_for_game'" />
 
         <RoundEndScreen v-else-if="currentGamePhase === 'round_end'"/>
+
+        <GameOverScreen v-else-if="currentGamePhase === 'game_over'"/>
         
     </main>
 </template>
