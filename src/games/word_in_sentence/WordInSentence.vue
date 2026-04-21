@@ -86,10 +86,15 @@ const socketConnected = ref(socket.isConnected())
 
 socket.addCommonEventHandler('connect', () => {
     socketConnected.value = true
+    socket.getAllPlayers(players => gameState.players.value = players.players)
 })
 
 socket.addCommonEventHandler('disconnect', () => {
     socketConnected.value = false
+})
+
+socket.addCommonEventHandler('server-message', () => {
+    socket.getAllPlayers(players => gameState.players.value = players.players)
 })
 
 // Game socket with listeners for this specific game
@@ -152,6 +157,7 @@ function sendUserWord(word: string){
     }
     
     wrappedGameSocket?.submitWord(word)
+    gameTracker.expectWordCheck = true
 }
 
 const gameScreenRef = useTemplateRef('game-screen')

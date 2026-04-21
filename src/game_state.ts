@@ -22,6 +22,8 @@ watch(host, () => {
 
 let _accessCode: SessionAccessCode = ''
 
+const players = ref<UserData[]>([])
+
 export const useGameState = () => ({
     setGameId: (gameId: SupportedGame) => _gameId = gameId,
     getGameId: () => _gameId,
@@ -36,4 +38,6 @@ export const useGameState = () => ({
 
     setAccessCode: (accessCode: SessionAccessCode) => _accessCode = accessCode,
     getAccessCode: () => _accessCode,
+
+    players,
 })

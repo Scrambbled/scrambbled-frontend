@@ -15,6 +15,8 @@ const createGameSession = (gameId: string) => fetch(`${API}/session/create`, {
     }
 })
 
+const icons: Map<string, UserIcon> = new Map()
+
 export const useApiHandler = () => ({
     getProfileIcons: (callback: (icons: UserIcon[]) => any) => getProfileIcons()
         .then(d => d.json())
@@ -29,5 +31,18 @@ export const useApiHandler = () => ({
     createGameSession: (gameId: string, callback: Listener<SessionAccessCode>) => createGameSession(gameId)
         .then(d => d.text())
         .then(accessCode => callback(accessCode))
-        .catch(console.error)
+        .catch(console.error),
+
+    getUserIcon: (iconName: string, callback: Listener<UserIcon | null>) => {
+        if(icons.size === 0){
+            getProfileIcons()
+                .then(d => d.json())
+                .then(_icons => (_icons as UserIcon[]).forEach(icon => icons.set(icon.name, icon)))
+                .catch(console.error)
+
+            console.log('Loaded icons')
+        }
+
+        callback(icons.get(iconName) ?? null)
+    }
 })

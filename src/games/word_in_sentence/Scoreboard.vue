@@ -1,19 +1,39 @@
 <script setup lang="ts">
+import { ref } from 'vue';
+import { useGameState } from '../../game_state';
+import { useApiHandler } from '../../api/ApiHandler';
 
-const player_scores = [
-    {name: "Name 1", icon: "/api/static/user_icons/sock_puppet_blue.png", game_points: 0, round_points: 17},
-    {name: "Name 2", icon: "/api/static/user_icons/sock_puppet_green.png", game_points: 1, round_points: 17},
-    {name: "Name 3", icon: "/api/static/user_icons/sock_puppet_yellow.png", game_points: 0, round_points: 18},
-    {name: "Name 4", icon: "/api/static/user_icons/sock_puppet_pink.png", game_points: 2, round_points: 17},
-].sort((a, b) => (b.game_points * 10000 + b.game_points) - (a.game_points * 10000 + a.round_points))
+const apiHandler = useApiHandler()
+const gameState = useGameState()
+
+const players = gameState.players
+
+const player_scores = ref(
+    players.value
+    .map(player => ({player, icon_path: '', game_points: 0, round_points: 0}))
+    .sort((a, b) => (b.game_points * 10000 + b.game_points) - (a.game_points * 10000 + a.round_points))
+)
+
+player_scores.value.forEach(player => {
+    apiHandler.getUserIcon(player.player.icon, icon => {
+        if(icon !== null) player.icon_path = icon.path
+    })
+})
+
+// const player_scores = [
+//     {name: "Name 1", icon: "/api/static/user_icons/sock_puppet_blue.png", game_points: 0, round_points: 17},
+//     {name: "Name 2", icon: "/api/static/user_icons/sock_puppet_green.png", game_points: 1, round_points: 17},
+//     {name: "Name 3", icon: "/api/static/user_icons/sock_puppet_yellow.png", game_points: 0, round_points: 18},
+//     {name: "Name 4", icon: "/api/static/user_icons/sock_puppet_pink.png", game_points: 2, round_points: 17},
+// ].sort((a, b) => (b.game_points * 10000 + b.game_points) - (a.game_points * 10000 + a.round_points))
 
 </script>
 
 <template>
     <ul class="user-list">
         <li v-for="player in player_scores" class="user">
-            <img class="icon" :src="player.icon" alt="">
-            <p class="name">{{ player.name }}</p>
+            <img class="icon" :src="player.icon_path" alt="">
+            <p class="name">{{ player.player.nickname }}</p>
             <p class="points">
                 <span class="round-points">{{ player.round_points }}</span>
                 /

@@ -85,17 +85,6 @@ defineExpose({
     setWordError
 });
 
-
-{
-    // Testing used words bounds
-    const testWords = ["Some", "common", "words", "might", "be", "very", "hard", "to", "to", "find", "in", "a", "sentence", "or", "random", "letters"];
-
-    const interval = setInterval(() => {
-        if(testWords.length === 0) clearInterval(interval)
-        else gameTracker.usedWords.value.push(testWords.pop() as string)
-    }, 1000)
-}
-
 const passed = ref(false)
 
 // Disable buttons when passed or it's other player's turn

@@ -1,6 +1,6 @@
 import { io, Socket } from "socket.io-client"
 import type { Listener } from "../../common_types"
-import type { UserData } from "./DTOs"
+import type { AllPlayersPayload, UserData } from "./DTOs"
 
 // Common events and their payload types
 type CommonEventsAndPayloads = {
@@ -8,6 +8,7 @@ type CommonEventsAndPayloads = {
     'connect': {},
     'disconnect': {},
     'host-upgrade': {host: UserData},
+    'server-message': {},
 }
 type CommonEvent = keyof CommonEventsAndPayloads
 type CommonEventListener<E extends CommonEvent> = Listener<CommonEventsAndPayloads[E]>
@@ -23,7 +24,8 @@ export const useGameSocket = () => {
         "chat-message": [],
         "connect": [],
         "disconnect": [],
-        "host-upgrade": []
+        "host-upgrade": [],
+        'server-message': [],
     }
 
     return {
@@ -74,6 +76,10 @@ export const useGameSocket = () => {
                 data: payload,
             }, ack_listener)
         },
+
+        getAllPlayers: (callback: Listener<AllPlayersPayload>) => {
+            socket?.emit('all-players', {}, callback)
+        }
     }
 }
 
