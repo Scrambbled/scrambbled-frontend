@@ -1,9 +1,12 @@
 <script setup lang="ts">
-import { ref, useTemplateRef, warn } from "vue";
+import { onMounted, ref, useTemplateRef, warn } from "vue";
 import ProfileEdit from "../../components/ProfileEdit.vue";
 import { useGameSocket } from "../../api/socket/Socket";
 import type { UserProfileData } from "../../types/user_types";
 import { useRouter } from "vue-router";
+import { useApiHandler } from "../../api/ApiHandler";
+import { getFrontGameData, type GameFrontData } from "../../games/supported_games";
+import type { SupportedGame } from "../../handle_game";
 
 const currentMenuIndex = ref(1)
 
@@ -44,6 +47,24 @@ function updateProfileData(profileData: UserProfileData){
     // console.log(userProfileData);
 }
 
+const apiHandler = useApiHandler();
+
+const games = ref<GameFrontData[]>([])
+
+onMounted(() => {
+    apiHandler.getAllGames(_games => {
+        games.value = _games
+                .map(gameData => getFrontGameData(gameData.gameId))
+                .filter(game => game !== null)
+    })
+})
+
+function createGame(gameId: SupportedGame){
+    apiHandler.createGameSession(gameId, accessCode => {
+    
+    })
+}
+
 </script>
 
 <template>
@@ -51,7 +72,12 @@ function updateProfileData(profileData: UserProfileData){
         <div class="session framed-box">
             <div class="moving-frame" :style="{'--frame': currentMenuIndex}">
                 <div class="create-session-menu">
-                    No thoughts… Menu empty :drooling:
+                    <button class="round-image-button go-back-button" @click.prevent="moveTo('main-menu')"></button>
+                    <ul class="game-list">
+                        <li class="game-list__entry" v-for="game in games">
+                            <button>{{ game.name }}</button>
+                        </li>
+                    </ul>
                 </div>
                 <div class="main-menu">
                     <button class="session-button press-in-button" @click.prevent="moveTo('join-game')">Join Game</button>
@@ -99,6 +125,16 @@ function updateProfileData(profileData: UserProfileData){
     overflow-x: hidden;
 }
 
+.create-session-menu{
+    display: grid;
+    grid-auto-rows: min-content;
+
+    & .go-back-button{
+        left: 0;
+        transform: scaleX(-1);
+    }
+}
+
 .moving-frame{
     --frame: 0;
 
@@ -119,6 +155,8 @@ function updateProfileData(profileData: UserProfileData){
         position: relative;
     }
 }
+
+
 
 .go-back-button{
     --_image: url('/img/arrow_loop_left.svg');
