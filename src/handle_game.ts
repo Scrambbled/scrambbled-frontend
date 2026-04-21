@@ -1,4 +1,3 @@
-import { useRouter } from "vue-router";
 import { useGameState } from "./game_state";
 import WordInSentence from "./games/word_in_sentence/WordInSentence.vue";
 
@@ -13,9 +12,21 @@ export function handleGame(gameId: string){
     return true
 }
 
-export const supportedGames = ["Words_in_words_game"] as const
+export const supportedGames = ["words_in_words_game"] as const
 export type SupportedGame = typeof supportedGames[number]
 
 export const viewForGameId: {[key in SupportedGame]: any} = {
-    "Words_in_words_game": WordInSentence
+    "words_in_words_game": WordInSentence
 }
+
+export interface GameFrontData{
+    icon: string,
+    gameId: SupportedGame,
+    name: string,
+}
+
+const gameIdFrontDataMap: {[key in SupportedGame]: GameFrontData} = {
+    'words_in_words_game': { icon: '', gameId: 'words_in_words_game', name: "Words in Words"}
+}
+
+export const getFrontGameData = (gameId: string) => gameIdFrontDataMap[gameId as SupportedGame] ?? null

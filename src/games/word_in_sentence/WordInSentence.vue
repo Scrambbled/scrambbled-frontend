@@ -1,5 +1,5 @@
  <script setup lang="ts">
-import { ref, useTemplateRef, watch } from 'vue'
+import { onUpdated, ref, useTemplateRef, watch } from 'vue'
 import { useGameSocket } from '../../api/socket/Socket'
 import { wordsInSentenceSocketWrapper } from './socket_wrapper'
 import type { TurnStartPayload } from './DTOs'
@@ -8,10 +8,11 @@ import WaitingForStartScreen from './WaitingForStartScreen.vue'
 import InfoBar from './InfoBar.vue'
 import RoundEndScreen from './RoundEndScreen.vue'
 import GameOverScreen from './GameOverScreen.vue'
+import { useGameState } from '../../game_state'
 
 const gamePhases = ['game_over', 'active_turn', 'other_player_turn', 'round_end', 'waiting_for_game'] as const
 type GamePhases = typeof gamePhases[number]
-let currentGamePhase = ref<GamePhases>('other_player_turn')
+let currentGamePhase = ref<GamePhases>('waiting_for_game')
 let gamePhaseData: any = null
 
 const gameTracker = {
@@ -169,6 +170,8 @@ let caption = new Map<GamePhases, string>([
     ['round_end', 'Round results']
 ]).get(currentGamePhase.value) ?? '---';
 
+const gameState = useGameState()
+const isHost = gameState.isHost
 
 </script>
 
@@ -191,7 +194,11 @@ let caption = new Map<GamePhases, string>([
             @word-submit="sendUserWord"
         />
 
-        <WaitingForStartScreen v-else-if="currentGamePhase === 'waiting_for_game'" />
+        <WaitingForStartScreen 
+            v-else-if="currentGamePhase === 'waiting_for_game'" 
+            :is-host="isHost"
+            :access-code="gameState.getAccessCode()"
+        />
 
         <RoundEndScreen v-else-if="currentGamePhase === 'round_end'"/>
 

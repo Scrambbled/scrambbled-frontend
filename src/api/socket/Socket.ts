@@ -1,11 +1,13 @@
 import { io, Socket } from "socket.io-client"
 import type { Listener } from "../../common_types"
+import type { UserData } from "./DTOs"
 
 // Common events and their payload types
 type CommonEventsAndPayloads = {
-    'chat message': string,
+    'chat-message': string,
     'connect': {},
     'disconnect': {},
+    'host-upgrade': {host: UserData},
 }
 type CommonEvent = keyof CommonEventsAndPayloads
 type CommonEventListener<E extends CommonEvent> = Listener<CommonEventsAndPayloads[E]>
@@ -18,9 +20,10 @@ let socket: Socket | null = null
 export const useGameSocket = () => {
     // Stores handlers register for the current use
     const registeredHandlers: {[key in CommonEvent]: CommonEventListener<key>[]} = {
-        "chat message": [],
+        "chat-message": [],
         "connect": [],
-        "disconnect": []
+        "disconnect": [],
+        "host-upgrade": []
     }
 
     return {
@@ -57,7 +60,7 @@ export const useGameSocket = () => {
                 socket.close()
             }
 
-            socket = io({query: {accessCode}, transports: ["websocket"]})
+            socket = io({query: {accessCode, icon, nickname: name}, transports: ["websocket"]})
         },
 
         isConnected: () => socket !== null && socket.connected,

@@ -5,8 +5,9 @@ import { useGameSocket } from "../../api/socket/Socket";
 import type { UserProfileData } from "../../types/user_types";
 import { useRouter } from "vue-router";
 import { useApiHandler } from "../../api/ApiHandler";
-import { getFrontGameData, type GameFrontData } from "../../games/supported_games";
-import type { SupportedGame } from "../../handle_game";
+import { getFrontGameData, type GameFrontData, type SupportedGame } from "../../handle_game";
+import { router } from "../../router";
+import { useGameState } from "../../game_state";
 
 const currentMenuIndex = ref(1)
 
@@ -33,18 +34,13 @@ function connect(){
         return
     }
 
-    if(userProfileData !== null){
-            useRouter().push(`/game?accessCode=${accessCode}`)
-    } else {
-        console.error("'userProfileData' is undefined and cannot be sent in a socket request");
-    }
+    useRouter().push(`/game?accessCode=${accessCode}`)
 }
 
-let userProfileData: UserProfileData | null = null;
+const gameState = useGameState()
 
 function updateProfileData(profileData: UserProfileData){
-    userProfileData = profileData
-    // console.log(userProfileData);
+    gameState.setUserProfileData(profileData)
 }
 
 const apiHandler = useApiHandler();
@@ -61,7 +57,7 @@ onMounted(() => {
 
 function createGame(gameId: SupportedGame){
     apiHandler.createGameSession(gameId, accessCode => {
-    
+        router.push({path: '/game', query: {accessCode}})
     })
 }
 
@@ -75,7 +71,7 @@ function createGame(gameId: SupportedGame){
                     <button class="round-image-button go-back-button" @click.prevent="moveTo('main-menu')"></button>
                     <ul class="game-list">
                         <li class="game-list__entry" v-for="game in games">
-                            <button>{{ game.name }}</button>
+                            <button @click="createGame(game.gameId)">{{ game.name }}</button>
                         </li>
                     </ul>
                 </div>

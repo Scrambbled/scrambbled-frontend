@@ -9,7 +9,10 @@ const getAllGames = () => fetch(`${API}/game/all`)
 
 const createGameSession = (gameId: string) => fetch(`${API}/session/create`, {
     method: 'POST',
-    body: JSON.stringify({gameId})
+    body: JSON.stringify({gameId}),
+    headers: {
+        'Content-Type': 'application/json'
+    }
 })
 
 export const useApiHandler = () => ({
