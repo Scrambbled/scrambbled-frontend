@@ -34,7 +34,7 @@ function connect(){
         return
     }
 
-    useRouter().push(`/game?accessCode=${accessCode}`)
+    router.push(`/game?accessCode=${accessCode}`)
 }
 
 const gameState = useGameState()
