@@ -117,7 +117,7 @@ const style = {"--width": boardData.width, "--height": boardData.height}
     }
 
     &.letter-x3{
-        --label: '2L';
+        --label: '3L';
         background-color: #6a77ce;
     }
 }

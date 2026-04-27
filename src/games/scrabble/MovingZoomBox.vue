@@ -81,8 +81,9 @@ const moveTo = (pos: Pos) => {
         }
     }
 
-    const xBounds = {max: boundingBox.width, min: 0}
-    const yBounds = {max: boundingBox.height, min: 0}
+    // TODO: make bounds relative to the moving frame size
+    const xBounds = {max: boundingBox.width, min: 0 - boundingBox.width / 2}
+    const yBounds = {max: boundingBox.height, min: 0 - boundingBox.height / 2}
 
     const currentPos = pointerState.currentPos.value
     pointerState.currentPos.value = {
@@ -117,8 +118,6 @@ const zoom = (by: number, zoomTo: Pos) => {
             y: boundingBox.y + boundingBox.height / 2,
         }
     }
-
-    // console.log("Ratio: ", xRatio, " ", yRatio)
 
     const currentPos = pointerState.currentPos.value
 
