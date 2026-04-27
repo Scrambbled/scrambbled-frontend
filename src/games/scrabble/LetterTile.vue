@@ -36,8 +36,8 @@ const emit = defineEmits<{clicked: [event: PointerEvent]}>()
 
     position: relative;
 
-    border-bottom: var(--_border-width) solid hsl(0 0 0 / 0.2);
-    border-top: var(--_border-width) solid hsl(0 0 100 / 0.3);
+    border-bottom: var(--_border-width) solid hsl(0 0% 0% / 0.2);
+    border-top: var(--_border-width) solid hsl(0 0% 100% / 0.3);
 
     & .letter{
         font-size: calc(var(--size) * .75);
