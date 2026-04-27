@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { ref, useTemplateRef, watch } from 'vue';
+import { clamp } from '../../tools';
 
 const moveZoomBoxRef = useTemplateRef("move-zoom-box")
 
 interface Pos{ x: number, y: number }
-const pEvent2Pos = (e: PointerEvent) => ({x: e.clientX, y: e.clientY} as Pos)
+const pEvent2Pos = (e: PointerEvent | WheelEvent) => ({x: e.clientX, y: e.clientY} as Pos)
 
 const pointerState = {
     basePos: null as (null | Pos),
@@ -68,12 +69,11 @@ const moveTo = (pos: Pos) => {
 
     console.log("Moving by: ", relativeMove);
     
+     // As ref was checked for null before, it can be cast
+    const element = moveZoomBoxRef.value as unknown as HTMLDivElement
+    const boundingBox = element.getBoundingClientRect()
 
     if(pointerState.currentPos.value === null){
-        // As ref was checked for null before, it can be cast
-        const element = moveZoomBoxRef.value as unknown as HTMLDivElement
-        const boundingBox = element.getBoundingClientRect()
-
         // Set position to center of the screen
         pointerState.currentPos.value = {
             x: boundingBox.x + boundingBox.width / 2,
@@ -81,19 +81,53 @@ const moveTo = (pos: Pos) => {
         }
     }
 
+    const xBounds = {max: boundingBox.width, min: 0}
+    const yBounds = {max: boundingBox.height, min: 0}
 
     const currentPos = pointerState.currentPos.value
-    pointerState.currentPos.value = {x: currentPos.x + relativeMove.x, y: currentPos.y + relativeMove.y}
+    pointerState.currentPos.value = {
+        x: clamp(currentPos.x + relativeMove.x, xBounds.min, xBounds.max), 
+        y: clamp(currentPos.y + relativeMove.y, yBounds.min, yBounds.max)
+    }
 }
 
 const onWheel = (e: WheelEvent) => {
+    // Make zoom not too fast and not too slow
     const multiplier = 0.001;
-
-    zoom(e.deltaY * multiplier)
+    zoom(e.deltaY * multiplier, pEvent2Pos(e))
 }
 
-const zoom = (by: number) => {
-    pointerState.currentZoom.value = Math.min(2, Math.max(0.5, pointerState.currentZoom.value + by))
+const zoom = (by: number, zoomTo: Pos) => {
+    if(moveZoomBoxRef.value === null){
+        return
+    }
+
+    if((pointerState.currentZoom.value <= 0.5 && by < 0) || (pointerState.currentZoom.value >= 2 && by > 0)){
+        return
+    }
+
+    const lastZoom = pointerState.currentZoom.value
+    const zoomRatio = (lastZoom + by) / lastZoom
+
+    const boundingBox = moveZoomBoxRef.value.getBoundingClientRect()
+
+    if(pointerState.currentPos.value === null){
+        pointerState.currentPos.value = {
+            x: boundingBox.x + boundingBox.width / 2,
+            y: boundingBox.y + boundingBox.height / 2,
+        }
+    }
+
+    // console.log("Ratio: ", xRatio, " ", yRatio)
+
+    const currentPos = pointerState.currentPos.value
+
+    pointerState.currentPos.value = {
+        x: zoomTo.x - (zoomTo.x - currentPos.x) * zoomRatio,
+        y: zoomTo.y - (zoomTo.y - currentPos.y) * zoomRatio,
+    }
+
+    pointerState.currentZoom.value = clamp(pointerState.currentZoom.value + by, 0.5, 2)
 }
 
 const cssVars = ref({
