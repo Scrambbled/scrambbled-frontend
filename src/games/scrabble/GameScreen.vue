@@ -9,6 +9,7 @@ const boardData = {
     startingSquare: {x: 7, y: 7},
     specialSquares: [
         {letterMultiplier: 2, wordMultiplier: 0, x: 0, y: 0},
+        {letterMultiplier: 2, wordMultiplier: 0, x: 1, y: 1},
         {letterMultiplier: 3, wordMultiplier: 0, x: 14, y: 0},
         {letterMultiplier: 0, wordMultiplier: 2, x: 0, y: 14},
         {letterMultiplier: 0, wordMultiplier: 3, x: 14, y: 14},
