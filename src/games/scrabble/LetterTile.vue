@@ -1,17 +1,45 @@
 <script setup lang="ts">
 import type { LetterTileData } from './data_type';
 
-
 const {letterTile} = defineProps<{letterTile: LetterTileData}>()
-const {letter, points} = letterTile
+// const {letter, points} = letterTile
 
-const emit = defineEmits<{clicked: [event: PointerEvent]}>()
+const emit = defineEmits<{
+    clicked: [event: PointerEvent],
+    dragStart: [event: PointerEvent],
+}>()
+
+let isPointerDown = false;
+
+function onPointerDown(e: PointerEvent){
+    isPointerDown = true
+}
+
+function onPointerMove(e: PointerEvent){
+    if(isPointerDown){
+        emit('dragStart', e)
+        isPointerDown = false
+        console.log('Successful move');
+    }
+}
+
+function pointerUp(e: PointerEvent){
+    isPointerDown = false
+}
 </script>
 
 <template>
-    <button class="letter-tile" @click.prevent="e => emit('clicked', e)">
-        <p class="points">{{ points }}</p>
-        <p class="letter">{{ letter }}</p>
+    <button class="letter-tile" 
+        @click.prevent="e => emit('clicked', e)"
+        @pointerdown.prevent="onPointerDown"
+        @pointermove.prevent="onPointerMove"
+        @pointerleave="pointerUp"
+        @pointercancel="pointerUp"
+        @pointerup="pointerUp"
+        @pointerout="pointerUp"
+    >
+        <p class="points">{{ letterTile.points }}</p>
+        <p class="letter">{{ letterTile.letter }}</p>
     </button>
 </template>
 

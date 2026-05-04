@@ -11,12 +11,25 @@ const cssVars = {
     "--max-tiles": maxTiles
 }
 
+function startTileDrag(e: PointerEvent, letter: LetterTileData){
+    if(scrabbleState === undefined){
+        return
+    }
+
+    scrabbleState.floatingLetterPos.value = {x: e.clientX, y: e.clientY}
+    scrabbleState.isLetterFloating.value = true
+    scrabbleState.floatingLetter.value = letter
+}
+
 </script>
 
 <template>
     <ul class="letter-tray" :style="cssVars">
         <li v-for="tile in tiles" class="tile-holder"> 
-            <LetterTile :letter-tile="tile"/>
+            <LetterTile 
+                :letter-tile="tile"
+                @drag-start="e => startTileDrag(e, tile)"
+            />
         </li>
     </ul>
 </template>
