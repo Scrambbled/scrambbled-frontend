@@ -6,17 +6,23 @@ const {scrabbleState} = defineProps<{scrabbleState: ScrabbleState | undefined}>(
 </script>
 
 <template>
-    <div class="letter-pouch">
+    <button class="letter-pouch">
         <p class="letters-left">{{ scrabbleState?.letterPouch.value.length ?? 0 }}</p>
-    </div>
+    </button>
 </template>
 
 <style lang="scss" scoped>
 .letter-pouch{
+    --_pouch-image: url('/img/letter-pouch.svg');
+
     position: relative;
 
     width: 10rem;
     height: 10rem;
+
+    outline: none;
+    border: none;
+    background-color: transparent;
 
     &::before{
         content: '';
@@ -25,11 +31,11 @@ const {scrabbleState} = defineProps<{scrabbleState: ScrabbleState | undefined}>(
         inset: 0;
 
         background-color: #c49263;
-        background-image: url('/img/letter-pouch.svg');
+        background-image: var(--_pouch-image);
         background-blend-mode: color-burn;
         background-size: contain;
 
-        mask-image: url('/img/letter-pouch.svg');
+        mask-image: var(--_pouch-image);
         mask-size: contain;
     }
 
@@ -50,6 +56,13 @@ const {scrabbleState} = defineProps<{scrabbleState: ScrabbleState | undefined}>(
 
         display: grid;
         place-content: center;
+    }
+
+    &:hover,
+    &:focus-visible{
+        --_pouch-image: url("/img/letter-pouch-open.svg");
+
+        cursor: pointer;
     }
 }
 </style>
