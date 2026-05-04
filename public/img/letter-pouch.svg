@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="256"
+   height="256"
+   viewBox="0 0 67.733332 67.733333"
+   version="1.1"
+   id="svg1"
+   inkscape:version="1.4.2 (ebf0e940d0, 2025-05-08)"
+   sodipodi:docname="letter-pouch.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="true"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="px"
+     inkscape:zoom="2.4982907"
+     inkscape:cx="105.67225"
+     inkscape:cy="136.09305"
+     inkscape:window-width="1646"
+     inkscape:window-height="961"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs1" />
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <path
+       id="rect1"
+       style="fill:#ffffff;stroke:#ffffff;stroke-width:5.29167;stroke-linecap:round;stroke-linejoin:round"
+       d="m 20.439806,18.321694 h 27.853209 c 0,0 18.967972,36.632543 8.578365,40.350088 -10.389607,3.717545 -30.066385,3.188016 -43.209541,0 -13.14315583,-3.188016 6.777967,-40.350088 6.777967,-40.350088 z"
+       sodipodi:nodetypes="cczzc" />
+    <path
+       style="fill:#ffffff;stroke:#ffffff;stroke-width:5.29167;stroke-linecap:round;stroke-linejoin:round"
+       d="M 16.947856,14.670062 C 29.3793,17.531929 41.13486,17.496627 52.214536,14.564156"
+       id="path1"
+       sodipodi:nodetypes="cc" />
+    <path
+       style="fill:#f2f2f2;stroke:#f2f2f2;stroke-width:5.29167;stroke-linecap:round;stroke-linejoin:round"
+       d="m 19.91028,22.346111 c -3.524198,7.891477 -7.333904,15.711576 -8.684271,24.14651 -0.924371,4.282198 -1.6614449,7.88107 4.342135,11.331914 9.83761,2.088131 17.152219,1.787867 27.217776,2.22402 C 28.55747,59.1822 15.34188,39.494988 19.91028,22.346111 Z"
+       id="path2"
+       sodipodi:nodetypes="ccccc" />
+  </g>
+</svg>

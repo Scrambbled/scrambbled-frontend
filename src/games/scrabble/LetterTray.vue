@@ -1,23 +1,20 @@
 <script setup lang="ts">
 import type { LetterTileData } from './data_type';
 import LetterTile from './LetterTile.vue';
+import type { ScrabbleState } from './scrabble_state';
 
-const {maxTiles} = defineProps<{maxTiles: number}>()
+const {maxTiles, scrabbleState} = defineProps<{maxTiles: number, scrabbleState: ScrabbleState | undefined}>()
 
-const tiles: LetterTileData[] = [
-    {letter: 'a', points: 1},
-    {letter: 'b', points: 1},
-    {letter: 'z', points: 3},
-    {letter: 'q', points: 5},
-    {letter: 'o', points: 1},
-]
+const tiles = scrabbleState?.letterTray ?? []
 
-
+const cssVars = {
+    "--max-tiles": maxTiles
+}
 
 </script>
 
 <template>
-    <ul class="letter-tray">
+    <ul class="letter-tray" :style="cssVars">
         <li v-for="tile in tiles" class="tile-holder"> 
             <LetterTile :letter-tile="tile"/>
         </li>
