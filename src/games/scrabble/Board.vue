@@ -50,7 +50,7 @@ const getPlacedTile = (pos: {x: number, y: number}) => placedTiles.value[pos.y]
     : undefined
 
 function onPointerUp(_e: PointerEvent, pos: {x: number, y: number}){
-    if(!scrabbleState.isLetterFloating){
+    if(!scrabbleState.isLetterFloating.value){
         return
     }
 
