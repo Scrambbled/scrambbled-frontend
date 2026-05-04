@@ -37,6 +37,10 @@ function* enumerateSquares(){
             classes.push('starting-square')
         }
 
+        if(getPlacedTile({x, y}) !== undefined){
+            classes.push('occupied')
+        }
+
         yield {class: classes.join(' '), pos: {x, y}}
     }
 }
@@ -77,7 +81,7 @@ function onPointerUp(_e: PointerEvent, pos: {x: number, y: number}){
         >
             <LetterTile 
                 v-if="getPlacedTile(square.pos) !== undefined" 
-                :letter-tile='getPlacedTile(square.pos) as LetterTileData'  
+                :letter-tile='getPlacedTile(square.pos) as LetterTileData'
             />
         </div>
     </section>
@@ -152,6 +156,10 @@ function onPointerUp(_e: PointerEvent, pos: {x: number, y: number}){
     &.letter-x3{
         --label: '3L';
         background-color: #6a77ce;
+    }
+
+    &.occupied{
+        --label: '';
     }
 }
 </style>
