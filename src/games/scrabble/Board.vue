@@ -1,9 +1,13 @@
 <script setup lang="ts">
+import { ref, type Ref } from 'vue';
 import { xyIterator } from '../../tools';
+import type { LetterTileData } from './data_type';
 import type { BoardData, SpecialSquare } from './DTOs';
+import type { ScrabbleState } from './scrabble_state';
+import LetterTile from './LetterTile.vue';
 
 
-const {boardData} = defineProps<{boardData: BoardData}>()
+const {boardData, scrabbleState} = defineProps<{boardData: BoardData, scrabbleState: ScrabbleState}>()
 
 const specialSquareLookup = boardData.specialSquares
     .map(square => ([`x${square.x}y${square.y}`, square] as [string, SpecialSquare]))
@@ -33,20 +37,49 @@ function* enumerateSquares(){
             classes.push('starting-square')
         }
 
-        yield {class: classes.join(' ')}
+        yield {class: classes.join(' '), pos: {x, y}}
     }
 }
 
 const style = {"--width": boardData.width, "--height": boardData.height}
+
+const placedTiles: Ref<Array<Array<LetterTileData>>> = ref(new Array(boardData.height))
+
+const getPlacedTile = (pos: {x: number, y: number}) => placedTiles.value[pos.y] 
+    ? (placedTiles.value[pos.y] as LetterTileData[])[pos.x]
+    : undefined
+
+function onPointerUp(_e: PointerEvent, pos: {x: number, y: number}){
+    if(!scrabbleState.isLetterFloating){
+        return
+    }
+
+    let row = placedTiles.value[pos.y];
+    if(row === undefined){
+        placedTiles.value[pos.y] = []
+        row = placedTiles.value[pos.y] as LetterTileData[]
+    }
+
+    row[pos.x] = scrabbleState.floatingLetter.value;
+    scrabbleState.isLetterFloating.value = false;
+}
 
 </script>
 
 <template>
     <section class="board" :style="style">
         <div 
+            @pointerenter=""
+            @pointerleave=""
+            @pointerup="e => onPointerUp(e, square.pos)"
             v-for="square in enumerateSquares()"
             :class="square.class"
-        ></div>
+        >
+            <LetterTile 
+                v-if="getPlacedTile(square.pos) !== undefined" 
+                :letter-tile='getPlacedTile(square.pos) as LetterTileData'  
+            />
+        </div>
     </section>
 </template>
 

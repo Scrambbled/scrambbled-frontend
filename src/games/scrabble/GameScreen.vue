@@ -73,7 +73,7 @@ function gamePointerUp(e: PointerEvent){
         @pointerup="gamePointerUp"
     >
         <MovingZoomBox class="board-manipulation">
-            <Board :board-data="boardData"/>
+            <Board :board-data="boardData" :scrabble-state="scrabbleState"/>
         </MovingZoomBox>
 
         <LetterTray class="letter-tray" :scrabble-state="scrabbleState" :max-tiles="8"/>
@@ -89,6 +89,7 @@ function gamePointerUp(e: PointerEvent){
     height: 100%;
 
     position: relative;
+    overflow: hidden;
 }
 
 .board-manipulation{
@@ -117,6 +118,8 @@ function gamePointerUp(e: PointerEvent){
     top: var(--y);
     left: var(--x);
     transform: translate(-50%, -50%);
+
+    pointer-events: none;
 
     &.hidden{
         display: none;
