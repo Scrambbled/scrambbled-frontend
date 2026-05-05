@@ -94,7 +94,7 @@ const moveTo = (pos: Pos) => {
 
 const onWheel = (e: WheelEvent) => {
     // Make zoom not too fast and not too slow
-    const multiplier = 0.001;
+    const multiplier = -0.001;
     zoom(e.deltaY * multiplier, pEvent2Pos(e))
 }
 
