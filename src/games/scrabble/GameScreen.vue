@@ -24,6 +24,9 @@ const scrabbleSocket = useScrabbleSocketWrapper(socket, {
     onGameStart: data => {
         console.log("Setting board data");
         boardData.value = data.boardData
+    },
+    onTrayUpdate: data => {
+        scrabbleState.letterTray.value = data.tray.map(letter => ({letter, points: 1}))
     }
 })
 

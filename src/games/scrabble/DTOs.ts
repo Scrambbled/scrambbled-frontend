@@ -41,3 +41,7 @@ export interface CheckWordResponse{
     status: 'invalid_placement' | 'must_contain_starting_square' | 'good' | 'bad',
     points: number | null,
 }
+
+export interface TrayUpdateDTO{
+    tray: string[],
+}
