@@ -2,12 +2,15 @@
 import { ref, type Ref, toRef, computed, watch } from 'vue';
 import { xyIterator } from '../../tools';
 import type { LetterTileData } from './data_type';
-import type { BoardData, SpecialSquare } from './DTOs';
+import type { BoardData, CheckWordPayload, PlacedTile, SpecialSquare } from './DTOs';
 import type { ScrabbleState } from './scrabble_state';
 import LetterTile from './LetterTile.vue';
 
-const props = defineProps<{boardData: BoardData, scrabbleState: ScrabbleState}>()
+const emit = defineEmits<{
+    newLetterPlacement: [letters: PlacedTile[]]
+}>();
 
+const props = defineProps<{boardData: BoardData, scrabbleState: ScrabbleState}>()
 
 const boardData = toRef(props, 'boardData')
 
@@ -56,6 +59,12 @@ const style = computed(() => ({"--width": boardData.value.width, "--height": boa
 
 const placedTiles: Ref<Array<Array<LetterTileData>>> = ref(new Array(boardData.value.height))
 
+const currentRoundTiles = ref<PlacedTile[]>([])
+
+watch(currentRoundTiles, newTiles => {
+    emit('newLetterPlacement', newTiles)
+})
+
 // Reset placedTiles when board size changes
 watch(() => boardData.value.height, (h) => {
     placedTiles.value = new Array(h)
@@ -78,6 +87,15 @@ function onPointerUp(_e: PointerEvent, pos: {x: number, y: number}){
 
     row[pos.x] = scrabbleState.floatingLetter.value;
     scrabbleState.isLetterFloating.value = false;
+
+    const samePosTileIndex = currentRoundTiles.value.findIndex(value => value.x === pos.x && value.y === pos.y)
+    const placedTile = {letter: scrabbleState.floatingLetter.value.letter, x: pos.x, y: pos.y}
+    
+    if(samePosTileIndex === -1){
+        currentRoundTiles.value.push(placedTile)
+    } else {
+        currentRoundTiles.value[samePosTileIndex] = placedTile
+    }
 }
 
 </script>

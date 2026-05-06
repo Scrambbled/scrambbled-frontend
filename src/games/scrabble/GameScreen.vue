@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted, ref, watch } from 'vue';
 import Board from './Board.vue';
-import type { BoardData } from './DTOs';
+import type { BoardData, PlacedTile } from './DTOs';
 import LetterPouch from './LetterPouch.vue';
 import LetterTile from './LetterTile.vue';
 import LetterTray from './LetterTray.vue';
@@ -87,6 +87,12 @@ function gamePointerUp(e: PointerEvent){
     }
 }
 
+function onWordPlaced(letters: PlacedTile[]){
+    console.log("Womp");
+    
+    scrabbleSocket.checkWord({placedTiles: letters}, d => console.log(d))
+}
+
 </script>
 
 <template>
@@ -95,7 +101,7 @@ function gamePointerUp(e: PointerEvent){
         @pointerup="gamePointerUp"
     >
         <MovingZoomBox class="board-manipulation">
-            <Board :board-data="boardData" :scrabble-state="scrabbleState"/>
+            <Board :board-data="boardData" :scrabble-state="scrabbleState" @new-letter-placement="onWordPlaced"/>
         </MovingZoomBox>
 
         <LetterTray class="letter-tray" :scrabble-state="scrabbleState" :max-tiles="8"/>
