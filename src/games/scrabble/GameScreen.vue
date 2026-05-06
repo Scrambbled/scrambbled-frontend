@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 import Board from './Board.vue';
 import type { BoardData } from './DTOs';
 import LetterPouch from './LetterPouch.vue';
@@ -7,20 +7,39 @@ import LetterTile from './LetterTile.vue';
 import LetterTray from './LetterTray.vue';
 import MovingZoomBox from './MovingZoomBox.vue';
 import { getDefaultScrabbleState } from './scrabble_state';
+import { useGameSocket } from '../../api/socket/Socket';
+import { isDebugEnv } from '../../misc/tools';
+import { useRouter } from 'vue-router';
+import { useScrabbleSocketWrapper } from './socket_wrapper';
+
+const router = useRouter()
+const socket = useGameSocket()
+
+if(!socket.isConnected && !isDebugEnv()){
+    console.warn('Socket not connected');
+    router.replace('/')
+}
+
+const scrabbleSocket = useScrabbleSocketWrapper(socket, {
+    onGameStart: data => {
+        console.log("Setting board data");
+        boardData.value = data.boardData
+    }
+})
 
 // TODO: replace with fetch
-const boardData = {
+const boardData = ref({
     height: 15,
     width: 15,
     startingSquare: {x: 7, y: 7},
     specialSquares: [
-        {letterMultiplier: 2, wordMultiplier: 0, x: 0, y: 0},
-        {letterMultiplier: 2, wordMultiplier: 0, x: 1, y: 1},
-        {letterMultiplier: 3, wordMultiplier: 0, x: 14, y: 0},
-        {letterMultiplier: 0, wordMultiplier: 2, x: 0, y: 14},
-        {letterMultiplier: 0, wordMultiplier: 3, x: 14, y: 14},
+        // {letterMultiplier: 2, wordMultiplier: 0, x: 0, y: 0},
+        // {letterMultiplier: 2, wordMultiplier: 0, x: 1, y: 1},
+        // {letterMultiplier: 3, wordMultiplier: 0, x: 14, y: 0},
+        // {letterMultiplier: 0, wordMultiplier: 2, x: 0, y: 14},
+        // {letterMultiplier: 0, wordMultiplier: 3, x: 14, y: 14},
     ]
-} as BoardData
+} as BoardData)
 
 const scrabbleState = getDefaultScrabbleState()
 
@@ -78,7 +97,7 @@ function gamePointerUp(e: PointerEvent){
 
         <LetterTray class="letter-tray" :scrabble-state="scrabbleState" :max-tiles="8"/>
 
-        <LetterPouch class="letter-pouch" :scrabble-state="scrabbleState"/>
+        <LetterPouch @click="scrabbleSocket.startGame()" class="letter-pouch" :scrabble-state="scrabbleState"/>
 
         <LetterTile :class="floatingLetterClass" :style="floatingLetterVars" :letter-tile="scrabbleState.floatingLetter.value"/>
     </main>

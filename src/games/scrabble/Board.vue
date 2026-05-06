@@ -1,39 +1,46 @@
 <script setup lang="ts">
-import { ref, type Ref } from 'vue';
+import { ref, type Ref, toRef, computed, watch } from 'vue';
 import { xyIterator } from '../../tools';
 import type { LetterTileData } from './data_type';
 import type { BoardData, SpecialSquare } from './DTOs';
 import type { ScrabbleState } from './scrabble_state';
 import LetterTile from './LetterTile.vue';
 
+const props = defineProps<{boardData: BoardData, scrabbleState: ScrabbleState}>()
 
-const {boardData, scrabbleState} = defineProps<{boardData: BoardData, scrabbleState: ScrabbleState}>()
 
-const specialSquareLookup = boardData.specialSquares
-    .map(square => ([`x${square.x}y${square.y}`, square] as [string, SpecialSquare]))
-    .reduce(
-        (map, square_entry) => map.set(square_entry[0], square_entry[1]),
-        new Map<string, SpecialSquare>()
-    )
+const boardData = toRef(props, 'boardData')
 
-const getSpecialSquare = (x: number, y: number) => specialSquareLookup.get(`x${x}y${y}`)
+const scrabbleState = props.scrabbleState
+
+// Recompute lookup when boardData changes
+const specialSquareLookup = computed(() =>
+    (boardData.value.specialSquares || [])
+        .map(square => ([`x${square.x}y${square.y}`, square] as [string, SpecialSquare]))
+        .reduce(
+            (map, square_entry) => map.set(square_entry[0], square_entry[1]),
+            new Map<string, SpecialSquare>()
+        )
+)
+
+const getSpecialSquare = (x: number, y: number) => specialSquareLookup.value.get(`x${x}y${y}`)
 
 function* enumerateSquares(){
-    for(const [x, y] of xyIterator(boardData.width, boardData.height)){
+    for(const [x, y] of xyIterator(boardData.value.width, boardData.value.height)){
         const special = getSpecialSquare(x, y)
 
         let classes = ['square']
 
         if(special !== undefined){
-            if(special.letterMultiplier > 0){
+            if(special.letterMultiplier > 1){
                 classes.push(`letter-x${special?.letterMultiplier}`)
             }
-            else if(special.wordMultiplier > 0){
+            else if(special.wordMultiplier > 1){
                 classes.push(`word-x${special?.wordMultiplier}`)
             }
         }
 
-        if(x === boardData.startingSquare.x && y === boardData.startingSquare.y){
+        if(x === boardData.value.startingSquare.x && y === boardData.value.startingSquare.y){
             classes.push('starting-square')
         }
 
@@ -45,9 +52,14 @@ function* enumerateSquares(){
     }
 }
 
-const style = {"--width": boardData.width, "--height": boardData.height}
+const style = computed(() => ({"--width": boardData.value.width, "--height": boardData.value.height}))
 
-const placedTiles: Ref<Array<Array<LetterTileData>>> = ref(new Array(boardData.height))
+const placedTiles: Ref<Array<Array<LetterTileData>>> = ref(new Array(boardData.value.height))
+
+// Reset placedTiles when board size changes
+watch(() => boardData.value.height, (h) => {
+    placedTiles.value = new Array(h)
+})
 
 const getPlacedTile = (pos: {x: number, y: number}) => placedTiles.value[pos.y] 
     ? (placedTiles.value[pos.y] as LetterTileData[])[pos.x]

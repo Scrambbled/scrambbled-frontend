@@ -3,10 +3,14 @@ import type { ScrabbleState } from './scrabble_state';
 
 const {scrabbleState} = defineProps<{scrabbleState: ScrabbleState | undefined}>()
 
+const emit = defineEmits<{
+    click: []
+}>()
+
 </script>
 
 <template>
-    <button class="letter-pouch">
+    <button @click.prevent="emit('click')" class="letter-pouch">
         <p class="letters-left">{{ scrabbleState?.letterPouch.value.length ?? 0 }}</p>
     </button>
 </template>

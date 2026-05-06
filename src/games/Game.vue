@@ -40,7 +40,7 @@ else {
 
         // Hardcode the gameId
         // TODO: Change to event listener
-        gameId.value = 'words_in_words_game'
+        gameId.value = 'scrabble_game'
         gameState.setAccessCode(accessCode)
 
         if(!handleGame(gameId.value)){
