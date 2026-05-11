@@ -1,3 +1,5 @@
+import type { LetterTileData } from "./data_type";
+
 export interface BoardData{
     width: number,
     height: number,
@@ -43,5 +45,5 @@ export interface CheckWordResponse{
 }
 
 export interface TrayUpdateDTO{
-    tray: string[],
+    tray: LetterTileData[],
 }
