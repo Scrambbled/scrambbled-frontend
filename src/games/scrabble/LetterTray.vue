@@ -65,7 +65,7 @@ function startTileDrag(e: PointerEvent, letter: LetterTileData, index: number){
 function dropOnLetterPlace(e: PointerEvent, index: number){
     console.log("Eh?");
     
-    if(!scrabbleState?.isLetterFloating){
+    if(!scrabbleState?.isLetterFloating.value){
         return
     }
     
@@ -101,6 +101,7 @@ function dropOnTray(e: PointerEvent){
     }
 
     scrabbleState.onFloatingLetterCancel()
+    scrabbleState.isLetterFloating.value = false
 }
 
 </script>
