@@ -6,6 +6,7 @@ export const getDefaultScrabbleState = () => ({
     letterPouch: ref<LetterTileData[]>([]),
     letterTray: ref<LetterTileData[]>([]),
     boardData: ref<BoardData | null>(null),
+    stopBoardMoving: ref(false),
 
     floatingLetter: ref<LetterTileData>({letter: '-', points: 0}),
     isLetterFloating: ref(false),

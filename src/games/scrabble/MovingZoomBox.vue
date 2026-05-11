@@ -1,11 +1,16 @@
 <script setup lang="ts">
-import { ref, useTemplateRef, watch } from 'vue';
+import { ref, toRef, useTemplateRef, watch } from 'vue';
 import { clamp } from '../../tools';
 
 const moveZoomBoxRef = useTemplateRef("move-zoom-box")
 
 interface Pos{ x: number, y: number }
 const pEvent2Pos = (e: PointerEvent | WheelEvent) => ({x: e.clientX, y: e.clientY} as Pos)
+
+const props = defineProps<{ stopMovement?: boolean }>()
+
+const stopMovement = toRef(props, 'stopMovement')
+// const stopMovement = props.stopMovement
 
 const pointerState = {
     basePos: null as (null | Pos),
@@ -51,6 +56,10 @@ const pointerOut = (e: PointerEvent) => {
 }
 
 const pointerMove = (e: PointerEvent) => {
+    if(stopMovement.value){
+        return
+    }
+
     moveTo(pEvent2Pos(e))
 }
 
@@ -93,6 +102,10 @@ const moveTo = (pos: Pos) => {
 }
 
 const onWheel = (e: WheelEvent) => {
+    if(stopMovement.value){
+        return
+    }
+
     // Make zoom not too fast and not too slow
     const multiplier = -0.001;
     zoom(e.deltaY * multiplier, pEvent2Pos(e))

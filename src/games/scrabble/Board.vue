@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { ref, type Ref, toRef, computed, watch } from 'vue';
+import { ref, type Ref, toRef, computed, watch, useTemplateRef } from 'vue';
 import { xyIterator } from '../../tools';
 import type { LetterTileData } from './data_type';
-import type { BoardData, CheckWordPayload, PlacedTile, SpecialSquare } from './DTOs';
+import type { BoardData, PlacedTile, SpecialSquare } from './DTOs';
 import type { ScrabbleState } from './scrabble_state';
 import LetterTile from './LetterTile.vue';
 
@@ -80,16 +80,23 @@ function onPointerUp(_e: PointerEvent, pos: {x: number, y: number}){
     }
 
     let row = placedTiles.value[pos.y];
+    
     if(row === undefined){
         placedTiles.value[pos.y] = []
         row = placedTiles.value[pos.y] as LetterTileData[]
+    }
+
+    if(row[pos.x] !== undefined){
+        scrabbleState.onFloatingLetterCancel()
+        scrabbleState.isLetterFloating.value = false
+        return
     }
 
     row[pos.x] = scrabbleState.floatingLetter.value;
     scrabbleState.isLetterFloating.value = false;
 
     const samePosTileIndex = currentRoundTiles.value.findIndex(value => value.x === pos.x && value.y === pos.y)
-    const placedTile = {letter: scrabbleState.floatingLetter.value.letter, x: pos.x, y: pos.y}
+    const placedTile = {tile: scrabbleState.floatingLetter.value, x: pos.x, y: pos.y}
     
     if(samePosTileIndex === -1){
         currentRoundTiles.value.push(placedTile)
@@ -100,10 +107,65 @@ function onPointerUp(_e: PointerEvent, pos: {x: number, y: number}){
     emit('newLetterPlacement', currentRoundTiles.value)
 }
 
+let lastBoardPos = {x: 0, y: 0}
+
+function moveTileOnBoard(e: PointerEvent, pos: {x: number, y: number}){
+    if(scrabbleState.isLetterFloating.value)
+        return
+
+    const letterIndex = currentRoundTiles.value.findIndex(tile => tile.x === pos.x && tile.y === pos.y)
+
+    if(letterIndex === -1)
+        return
+
+    const letter = currentRoundTiles.value[letterIndex] as PlacedTile
+    
+    lastBoardPos = pos
+
+    scrabbleState.floatingLetter.value = letter.tile
+    scrabbleState.floatingLetterSource.value = 'board'
+    scrabbleState.isLetterFloating.value = true
+
+    scrabbleState.onFloatingLetterCancel = () => {
+        scrabbleState.isLetterFloating.value = false
+        currentRoundTiles.value.push(letter)
+
+        let row = placedTiles.value[pos.y];
+    
+        if(row === undefined){
+            placedTiles.value[pos.y] = []
+            row = placedTiles.value[pos.y] as LetterTileData[]
+        }
+
+        row[pos.x] = letter.tile
+    }
+
+    currentRoundTiles.value.splice(letterIndex, 1)
+    
+    const row = placedTiles.value[pos.y]
+    if(row !== undefined){
+        delete row[pos.x]
+    }
+
+    emit('newLetterPlacement', currentRoundTiles.value)
+}
+
+const boardElemRef = useTemplateRef('board')
+
+function pointerUpOnBoard(e: PointerEvent){
+    if(e.target !== boardElemRef.value)
+        return
+
+    if(scrabbleState.isLetterFloating.value){
+        scrabbleState.onFloatingLetterCancel()
+        scrabbleState.isLetterFloating.value = false
+    }
+}
+
 </script>
 
 <template>
-    <section class="board" :style="style">
+    <section class="board" :style="style" ref="board" @pointerup="pointerUpOnBoard">
         <div 
             @pointerenter=""
             @pointerleave=""
@@ -114,6 +176,7 @@ function onPointerUp(_e: PointerEvent, pos: {x: number, y: number}){
             <LetterTile 
                 v-if="getPlacedTile(square.pos) !== undefined" 
                 :letter-tile='getPlacedTile(square.pos) as LetterTileData'
+                @drag-start="e => moveTileOnBoard(e, square.pos)"
             />
         </div>
     </section>

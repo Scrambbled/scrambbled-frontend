@@ -29,11 +29,17 @@ export interface ScrabbleStartedPayload{
 }
 
 export interface CheckWordPayload{
-    placedTiles: PlacedTile[],
+    placedTiles: PlacedTileLetterOnly[],
+}
+
+export interface PlacedTileLetterOnly{
+    letter: string,
+    x: number,
+    y: number,
 }
 
 export interface PlacedTile{
-    letter: string,
+    tile: LetterTileData,
     x: number,
     y: number,
 }

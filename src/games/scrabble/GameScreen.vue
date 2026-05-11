@@ -93,7 +93,13 @@ const wordInfo = ref<WordInfo | null>(null)
 function onWordPlaced(letters: PlacedTile[]){
     console.log("Womp");
     
-    scrabbleSocket.checkWord({placedTiles: letters}, d => {
+    scrabbleSocket.checkWord({
+        placedTiles: letters.map(tile => ({
+            x: tile.x,
+            y: tile.y,
+            letter: tile.tile.letter
+        }))
+    }, d => {
         if(d.status === 'good'){
             wordInfo.value = {
                 error: 'none',
@@ -119,7 +125,7 @@ function onWordPlaced(letters: PlacedTile[]){
         @pointermove="gamePointerMove"
         @pointerup="gamePointerUp"
     >
-        <MovingZoomBox class="board-manipulation">
+        <MovingZoomBox class="board-manipulation" :stop-movement="scrabbleState.isLetterFloating.value">
             <Board :board-data="boardData" :scrabble-state="scrabbleState" @new-letter-placement="onWordPlaced"/>
         </MovingZoomBox>
 

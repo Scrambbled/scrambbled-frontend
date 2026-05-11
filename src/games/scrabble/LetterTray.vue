@@ -80,6 +80,8 @@ function dropOnLetterPlace(e: PointerEvent, index: number){
     else{
         if(scrabbleState.floatingLetterSource.value !== 'tray'){
             scrabbleState.onFloatingLetterCancel()
+            scrabbleState.isLetterFloating.value = false
+            return
         }
 
         // Move whats under the cursor to spot from where letter was last picked
