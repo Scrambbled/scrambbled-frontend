@@ -61,9 +61,9 @@ const placedTiles: Ref<Array<Array<LetterTileData>>> = ref(new Array(boardData.v
 
 const currentRoundTiles = ref<PlacedTile[]>([])
 
-watch(currentRoundTiles, newTiles => {
-    emit('newLetterPlacement', newTiles)
-})
+// watch(currentRoundTiles, newTiles => {
+//     emit('newLetterPlacement', newTiles)
+// })
 
 // Reset placedTiles when board size changes
 watch(() => boardData.value.height, (h) => {
@@ -96,6 +96,8 @@ function onPointerUp(_e: PointerEvent, pos: {x: number, y: number}){
     } else {
         currentRoundTiles.value[samePosTileIndex] = placedTile
     }
+
+    emit('newLetterPlacement', currentRoundTiles.value)
 }
 
 </script>

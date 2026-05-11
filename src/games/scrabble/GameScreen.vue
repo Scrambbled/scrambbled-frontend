@@ -11,6 +11,7 @@ import { useGameSocket } from '../../api/socket/Socket';
 import { isDebugEnv } from '../../misc/tools';
 import { useRouter } from 'vue-router';
 import { useScrabbleSocketWrapper } from './socket_wrapper';
+import TopBar, { type WordInfo } from './TopBar.vue';
 
 const router = useRouter()
 const socket = useGameSocket()
@@ -47,10 +48,10 @@ const boardData = ref({
 const scrabbleState = getDefaultScrabbleState()
 
 // TODO: Replace with fetch
-scrabbleState.letterTray.value = [
-    {letter: 'a', points: 1},
-    {letter: 'z', points: 5}
-]
+// scrabbleState.letterTray.value = [
+//     {letter: 'a', points: 1},
+//     {letter: 'z', points: 5}
+// ]
 
 let floatingLetterClass = ref("")
 watch(scrabbleState.isLetterFloating, (isFloating) => {
@@ -87,10 +88,28 @@ function gamePointerUp(e: PointerEvent){
     }
 }
 
+const wordInfo = ref<WordInfo | null>(null)
+
 function onWordPlaced(letters: PlacedTile[]){
     console.log("Womp");
     
-    scrabbleSocket.checkWord({placedTiles: letters}, d => console.log(d))
+    scrabbleSocket.checkWord({placedTiles: letters}, d => {
+        if(d.status === 'good'){
+            wordInfo.value = {
+                error: 'none',
+                isCorrect: true,
+                points: d.points as number
+            }
+        }
+        else{
+            wordInfo.value = {
+                // TODO: fix it
+                error: d.status as any,
+                isCorrect: false,
+                points: 0,
+            }
+        }
+    })
 }
 
 </script>
@@ -109,6 +128,8 @@ function onWordPlaced(letters: PlacedTile[]){
         <LetterPouch @click="scrabbleSocket.startGame()" class="letter-pouch" :scrabble-state="scrabbleState"/>
 
         <LetterTile :class="floatingLetterClass" :style="floatingLetterVars" :letter-tile="scrabbleState.floatingLetter.value"/>
+
+        <TopBar class="top-bar" :points="2137" :player-count="5" :word-info="wordInfo"/>
     </main>
 </template>
 
@@ -152,5 +173,14 @@ function onWordPlaced(letters: PlacedTile[]){
     &.hidden{
         display: none;
     }
+}
+
+.top-bar{
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+
+    width: min(80rem, 90%);
 }
 </style>
