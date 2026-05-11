@@ -10,6 +10,8 @@ export const getDefaultScrabbleState = () => ({
     floatingLetter: ref<LetterTileData>({letter: '-', points: 0}),
     isLetterFloating: ref(false),
     floatingLetterPos: ref({x: 0, y: 0}),
+    floatingLetterSource: ref<'board' | 'tray'>('tray'),
+    onFloatingLetterCancel: () => {},
 })
 
 // Extract type from getDefaultScrabbleState return value
