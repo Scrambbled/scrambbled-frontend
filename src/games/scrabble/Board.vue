@@ -229,10 +229,6 @@ function pointerUpOnBoard(e: PointerEvent){
         font-size: calc(var(--tile-size) * .5);
     }
 
-    &.starting-square{
-        --label: '⭐'
-    }
-
     &.word-x2{
         --label: '2W';
         background-color: #6ace7b;
@@ -251,6 +247,10 @@ function pointerUpOnBoard(e: PointerEvent){
     &.letter-x3{
         --label: '3L';
         background-color: #6a77ce;
+    }
+
+    &.starting-square{
+        --label: '⭐'
     }
 
     &.occupied{
