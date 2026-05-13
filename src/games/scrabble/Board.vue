@@ -129,6 +129,7 @@ function moveTileOnBoard(e: PointerEvent, pos: {x: number, y: number}){
     scrabbleState.onFloatingLetterCancel = () => {
         scrabbleState.isLetterFloating.value = false
         currentRoundTiles.value.push(letter)
+        emit('newLetterPlacement', currentRoundTiles.value)
 
         let row = placedTiles.value[pos.y];
     
@@ -138,6 +139,7 @@ function moveTileOnBoard(e: PointerEvent, pos: {x: number, y: number}){
         }
 
         row[pos.x] = letter.tile
+
     }
 
     currentRoundTiles.value.splice(letterIndex, 1)
