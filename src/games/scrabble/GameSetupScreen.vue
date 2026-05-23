@@ -2,8 +2,6 @@
 import { ref } from 'vue';
 import type { ScrabbleSocket } from './socket_wrapper';
 
-const {socket} = defineProps<{socket: ScrabbleSocket}>()
-
 const emit = defineEmits<{
     startGameClicked: [data: any] 
 }>()

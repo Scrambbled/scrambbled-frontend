@@ -132,13 +132,15 @@ function startGame(data: any){
     console.log("Start game with data: ", data);
 
     gamePhase.value = 'active_round'
+
+    scrabbleSocket.startGame()
 }
 
 </script>
 
 <template>
     <main v-if="gamePhase === 'setup'" class="game-setup">
-        <GameSetupScreen :socket="scrabbleSocket" @start-game-clicked="startGame"/>
+        <GameSetupScreen @start-game-clicked="startGame"/>
     </main>
 
     <main v-else-if="gamePhase === 'active_round' || gamePhase === 'passive_round'" class="game-screen"
