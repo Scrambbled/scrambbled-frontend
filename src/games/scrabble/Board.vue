@@ -129,7 +129,6 @@ function moveTileOnBoard(e: PointerEvent, pos: {x: number, y: number}){
     scrabbleState.onFloatingLetterCancel = () => {
         scrabbleState.isLetterFloating.value = false
         currentRoundTiles.value.push(letter)
-        emit('newLetterPlacement', currentRoundTiles.value)
 
         let row = placedTiles.value[pos.y];
     
@@ -139,7 +138,6 @@ function moveTileOnBoard(e: PointerEvent, pos: {x: number, y: number}){
         }
 
         row[pos.x] = letter.tile
-
     }
 
     currentRoundTiles.value.splice(letterIndex, 1)
@@ -231,6 +229,10 @@ function pointerUpOnBoard(e: PointerEvent){
         font-size: calc(var(--tile-size) * .5);
     }
 
+    &.starting-square{
+        --label: '⭐'
+    }
+
     &.word-x2{
         --label: '2W';
         background-color: #6ace7b;
@@ -249,10 +251,6 @@ function pointerUpOnBoard(e: PointerEvent){
     &.letter-x3{
         --label: '3L';
         background-color: #6a77ce;
-    }
-
-    &.starting-square{
-        --label: '⭐'
     }
 
     &.occupied{

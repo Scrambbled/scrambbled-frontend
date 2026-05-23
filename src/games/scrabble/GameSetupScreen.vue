@@ -4,6 +4,10 @@ import type { ScrabbleSocket } from './socket_wrapper';
 
 const {socket} = defineProps<{socket: ScrabbleSocket}>()
 
+const emit = defineEmits<{
+    startGameClicked: [data: any] 
+}>()
+
 const languageOptions = [
     {value: 'english', label: 'English'},
     {value: 'polish', label: 'Polish'},
@@ -43,7 +47,8 @@ function submitGameSetup(e: SubmitEvent){
 
     console.log(data);
 
-    socket.startGame()
+    // socket.startGame()
+    emit('startGameClicked', data)
 }
 
 </script>

@@ -4,8 +4,8 @@ import type { CheckWordPayload, CheckWordResponse, ScrabbleStartedPayload, TrayU
 
 
 export interface ScrabbleListeners{
-    onGameStart: Listener<ScrabbleStartedPayload>,
-    onTrayUpdate: Listener<TrayUpdateDTO>,
+    onGameStart?: Listener<ScrabbleStartedPayload>,
+    onTrayUpdate?: Listener<TrayUpdateDTO>,
 }
 
 const mapListenersToEvents = (listeners: ScrabbleListeners) => [

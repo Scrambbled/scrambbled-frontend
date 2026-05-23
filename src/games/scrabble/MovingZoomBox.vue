@@ -32,17 +32,17 @@ const pointerDown = (e: PointerEvent) => {
 }
 
 const pointerUp = (e: PointerEvent) => {
-    console.log("pointer up");
+    // console.log("pointer up");
     endPointerAction(e)
 }
 
 const pointerCancel = (e: PointerEvent) => {
-    console.log("pointer cancelled");
+    // console.log("pointer cancelled");
     // endPointerAction(e)
 }
 
 const pointerLeave = (e: PointerEvent) => {
-    console.log("pointer left");
+    // console.log("pointer left");
     endPointerAction(e)
 }
 
@@ -76,7 +76,7 @@ const moveTo = (pos: Pos) => {
     // Set new base pos
     pointerState.basePos = pos
 
-    console.log("Moving by: ", relativeMove);
+    // console.log("Moving by: ", relativeMove);
     
      // As ref was checked for null before, it can be cast
     const element = moveZoomBoxRef.value as unknown as HTMLDivElement

@@ -12,8 +12,18 @@ import { isDebugEnv } from '../../misc/tools';
 import { useRouter } from 'vue-router';
 import { useScrabbleSocketWrapper } from './socket_wrapper';
 import TopBar, { type WordInfo } from './TopBar.vue';
+import GameSetupScreen from './GameSetupScreen.vue';
+
+// === Game Phases ===
+const gamePhases = ['setup', 'active_round', 'passive_round', 'scores'] as const
+type GamePhase = typeof gamePhases[number]
+
+const gamePhase = ref<GamePhase>('setup')
+
 
 const router = useRouter()
+
+// === Socket ===
 const socket = useGameSocket()
 
 if(!socket.isConnected && !isDebugEnv()){
@@ -118,10 +128,20 @@ function onWordPlaced(letters: PlacedTile[]){
     })
 }
 
+function startGame(data: any){
+    console.log("Start game with data: ", data);
+
+    gamePhase.value = 'active_round'
+}
+
 </script>
 
 <template>
-    <main class="game-screen"
+    <main v-if="gamePhase === 'setup'" class="game-setup">
+        <GameSetupScreen :socket="scrabbleSocket" @start-game-clicked="startGame"/>
+    </main>
+
+    <main v-else-if="gamePhase === 'active_round' || gamePhase === 'passive_round'" class="game-screen"
         @pointermove="gamePointerMove"
         @pointerup="gamePointerUp"
     >
@@ -131,7 +151,7 @@ function onWordPlaced(letters: PlacedTile[]){
 
         <LetterTray class="letter-tray" :scrabble-state="scrabbleState" :max-tiles="8"/>
 
-        <LetterPouch @click="scrabbleSocket.startGame()" class="letter-pouch" :scrabble-state="scrabbleState"/>
+        <LetterPouch @click="" class="letter-pouch" :scrabble-state="scrabbleState"/>
 
         <LetterTile :class="floatingLetterClass" :style="floatingLetterVars" :letter-tile="scrabbleState.floatingLetter.value"/>
 
@@ -140,6 +160,14 @@ function onWordPlaced(letters: PlacedTile[]){
 </template>
 
 <style lang="scss" scoped>
+
+.game-setup{
+    height: 100%;
+
+    display: grid;
+    place-content: center;
+}
+
 .game-screen{
     height: 100%;
 
