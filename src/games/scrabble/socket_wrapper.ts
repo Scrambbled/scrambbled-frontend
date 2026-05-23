@@ -23,3 +23,5 @@ export const useScrabbleSocketWrapper = (socket: GameSocket, listeners: Scrabble
         startGame: () => socket.sendGameSpecificEvent('start_game', {}),
     }
 }
+
+export type ScrabbleSocket = ReturnType<typeof useScrabbleSocketWrapper>
