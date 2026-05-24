@@ -232,7 +232,7 @@ scrabbleState.playersAndPoints.value = [
 
         <TopBar class="top-bar" :points="1234" :player-count="5" :word-info="wordInfo"/>
 
-        <Leaderboard class="leaderboard" :state="scrabbleState"/>
+        <Leaderboard class="leaderboard" :state="scrabbleState" :display-limit="5"/>
     </main>
 </template>
 

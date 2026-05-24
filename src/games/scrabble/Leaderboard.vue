@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import type { ScrabbleState } from './scrabble_state';
 
-const {state} = defineProps<{state: ScrabbleState}>();
+const {state, displayLimit} = defineProps<{state: ScrabbleState, displayLimit: number}>();
 
 </script>
 
 <template>
     <ul class="scoreboard">
-        <li class="score" v-for="playerWithPoints in state.playersAndPoints.value.sort((p1, p2) => p2.points - p1.points)">
+        <li class="score" v-for="playerWithPoints in state.playersAndPoints.value.sort((p1, p2) => p2.points - p1.points).slice(0, displayLimit)">
             <p class="host-indicator" v-if="playerWithPoints.isHost">HOST</p>
             <img class="icon" :src="playerWithPoints.player.iconUrl" alt="">
             <p class="name">{{ playerWithPoints.player.nickname }}</p>
