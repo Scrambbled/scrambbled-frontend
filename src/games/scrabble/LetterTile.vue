@@ -47,7 +47,7 @@ function pointerUp(e: PointerEvent){
 
 .letter-tile{
     --size: 4rem;
-    --color: hsl(41, 51%, 61%);
+    --color: hsl(36, 65%, 73%);
 
     --_border-radius: calc(var(--size) / 6);
     --_border-width: calc(var(--size) / 12);

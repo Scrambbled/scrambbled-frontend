@@ -208,7 +208,7 @@ function pointerUpOnBoard(e: PointerEvent){
 .square{
     --label: '';
 
-    background-color: #d7ba8b;
+    background-color: #ecd0a3;
 
     border-radius: 10%;
 
