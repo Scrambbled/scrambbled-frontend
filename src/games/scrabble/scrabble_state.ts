@@ -1,6 +1,6 @@
 import { ref } from "vue";
 import type { LetterTileData } from "./data_type";
-import type { BoardData } from "./DTOs";
+import type { BoardData, PlayerAndPoints } from "./DTOs";
 
 export const getDefaultScrabbleState = () => ({
     letterPouch: ref<LetterTileData[]>([]),
@@ -13,6 +13,8 @@ export const getDefaultScrabbleState = () => ({
     floatingLetterPos: ref({x: 0, y: 0}),
     floatingLetterSource: ref<'board' | 'tray'>('tray'),
     onFloatingLetterCancel: () => {},
+
+    playersAndPoints: ref<PlayerAndPoints[]>([]),
 })
 
 // Extract type from getDefaultScrabbleState return value

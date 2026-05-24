@@ -53,3 +53,9 @@ export interface CheckWordResponse{
 export interface TrayUpdateDTO{
     tray: LetterTileData[],
 }
+
+export interface PlayerAndPoints{
+    player: PlayerInfoDTO,
+    points: number,
+    isHost: boolean,
+}

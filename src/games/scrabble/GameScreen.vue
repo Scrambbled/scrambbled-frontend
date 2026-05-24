@@ -13,6 +13,7 @@ import { useRouter } from 'vue-router';
 import { useScrabbleSocketWrapper } from './socket_wrapper';
 import TopBar, { type WordInfo } from './TopBar.vue';
 import GameSetupScreen from './GameSetupScreen.vue';
+import Leaderboard from './Leaderboard.vue';
 
 // === Game Phases ===
 const gamePhases = ['setup', 'active_round', 'passive_round', 'scores'] as const
@@ -100,7 +101,9 @@ function gamePointerUp(e: PointerEvent){
 
 const wordInfo = ref<WordInfo | null>(null)
 const wordInfoText = ref('')
+// TODO: Change to wordErrorClass: string
 const submitWordButtonClasses = ref(new Set(['submit-word', 'hidden']))
+let currentLetters = [] as PlacedTile[]
 
 function onWordPlaced(letters: PlacedTile[]){
     console.log(letters);
@@ -109,6 +112,8 @@ function onWordPlaced(letters: PlacedTile[]){
         submitWordButtonClasses.value.add('hidden')
         return
     }
+
+    currentLetters = letters
     
     scrabbleSocket.checkWord({
         placedTiles: letters.map(tile => ({
@@ -173,8 +178,26 @@ function startGame(data: any){
 }
 
 function submitWord(){
-    
+    scrabbleSocket.submitMove(
+        {
+            placedTiles: currentLetters.map(tile => ({
+                x: tile.x,
+                y: tile.y,
+                letter: tile.tile.letter
+            }))
+        },
+        (data) => {console.log(data)}
+    )
 }
+
+
+scrabbleState.playersAndPoints.value = [
+    {isHost: true, points: 20, player: { iconUrl: '/api/static/user_icons/sock_puppet_blue.png', id: '', nickname: "Buffalo" }},
+    {isHost: false, points: 0, player: { iconUrl: '/api/static/user_icons/sock_puppet_green.png', id: '', nickname: "Buffalo" }},
+    {isHost: false, points: 243, player: { iconUrl: '/api/static/user_icons/sock_puppet_blue.png', id: '', nickname: "Buffalo" }},
+    {isHost: false, points: 100, player: { iconUrl: '/api/static/user_icons/sock_puppet_pink.png', id: '', nickname: "Buffalo" }},
+    {isHost: false, points: 15, player: { iconUrl: '/api/static/user_icons/sock_puppet_yellow.png', id: '', nickname: "Buffalo" }},
+]
 
 </script>
 
@@ -192,7 +215,14 @@ function submitWord(){
         </MovingZoomBox>
 
         <section class="bottom-bar">
-            <button :class="[...submitWordButtonClasses].join(' ')" :disabled="!wordInfo?.isCorrect">{{ wordInfoText }}</button>
+            <button 
+                :class="[...submitWordButtonClasses].join(' ')" 
+                :disabled="!wordInfo?.isCorrect" 
+                @click.prevent="submitWord"
+            >
+                {{ wordInfoText }}
+            </button>
+            
             <LetterTray class="letter-tray" :scrabble-state="scrabbleState" :max-tiles="8"/>
         </section>
 
@@ -201,6 +231,8 @@ function submitWord(){
         <LetterTile :class="floatingLetterClass" :style="floatingLetterVars" :letter-tile="scrabbleState.floatingLetter.value"/>
 
         <TopBar class="top-bar" :points="1234" :player-count="5" :word-info="wordInfo"/>
+
+        <Leaderboard class="leaderboard" :state="scrabbleState"/>
     </main>
 </template>
 
@@ -313,6 +345,21 @@ function submitWord(){
             transform: translate(-50%, 100%);
         }
 
+    }
+}
+
+.leaderboard{
+    position: absolute;
+    right: 0;
+    top: 50%;
+    // Move in x until only image shows
+    transform: translate(calc(100% - (1.25rem + 3rem + .5rem / 2)), -50%);
+
+    transition: transform .2s;
+    
+    &:hover,
+    &:focus-visible{
+        transform: translate(0, -50%);
     }
 }
 </style>
