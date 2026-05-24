@@ -70,29 +70,28 @@ watch(() => boardData.value.height, (h) => {
     placedTiles.value = new Array(h)
 })
 
-const getPlacedTile = (pos: {x: number, y: number}) => placedTiles.value[pos.y] 
-    ? (placedTiles.value[pos.y] as LetterTileData[])[pos.x]
-    : undefined
+const getPlacedTile = (pos: {x: number, y: number}) => {
+    let tile = placedTiles.value[pos.y] ? (placedTiles.value[pos.y] as LetterTileData[])[pos.x] : undefined
+    return tile ?? currentRoundTiles.value.filter(tile => tile.x === pos.x && tile.y === pos.y)[0]?.tile;
+}
 
 function onPointerUp(_e: PointerEvent, pos: {x: number, y: number}){
     if(!scrabbleState.isLetterFloating.value){
         return
     }
 
-    let row = placedTiles.value[pos.y];
-    
-    if(row === undefined){
-        placedTiles.value[pos.y] = []
-        row = placedTiles.value[pos.y] as LetterTileData[]
-    }
 
-    if(row[pos.x] !== undefined){
+    let row = placedTiles.value[pos.y];
+    // If position occupied in placedTiles or currentRoundTiles
+    if((row && row[pos.x] !== undefined) || currentRoundTiles.value.findIndex(tile => tile.x === pos.x && tile.y === pos.y) != -1){
         scrabbleState.onFloatingLetterCancel()
         scrabbleState.isLetterFloating.value = false
         return
     }
 
-    row[pos.x] = scrabbleState.floatingLetter.value;
+    // row[pos.x] = scrabbleState.floatingLetter.value;
+
+    currentRoundTiles.value.push({tile: scrabbleState.floatingLetter.value, x: pos.x, y: pos.y})
     scrabbleState.isLetterFloating.value = false;
 
     const samePosTileIndex = currentRoundTiles.value.findIndex(value => value.x === pos.x && value.y === pos.y)
