@@ -59,3 +59,8 @@ export interface PlayerAndPoints{
     points: number,
     isHost: boolean,
 }
+
+export interface ConfigureGamePayload{
+    language: string,
+    gameLengthMultiplier: number,
+}

@@ -8,3 +8,8 @@ export interface UserData{
 export interface AllPlayersPayload{
     players: UserData[],
 }
+
+export interface FileUploadData{
+    filename: string,
+    data: ArrayBuffer,
+}

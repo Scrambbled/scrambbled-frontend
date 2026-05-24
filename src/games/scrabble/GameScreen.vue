@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted, ref, watch } from 'vue';
 import Board from './Board.vue';
-import type { BoardData, PlacedTile } from './DTOs';
+import type { BoardData, ConfigureGamePayload, PlacedTile } from './DTOs';
 import LetterPouch from './LetterPouch.vue';
 import LetterTile from './LetterTile.vue';
 import LetterTray from './LetterTray.vue';
@@ -12,7 +12,7 @@ import { isDebugEnv } from '../../misc/tools';
 import { useRouter } from 'vue-router';
 import { useScrabbleSocketWrapper } from './socket_wrapper';
 import TopBar, { type WordInfo } from './TopBar.vue';
-import GameSetupScreen from './GameSetupScreen.vue';
+import GameSetupScreen, { type GameSetup } from './GameSetupScreen.vue';
 import Leaderboard from './Leaderboard.vue';
 
 const router = useRouter()
@@ -31,6 +31,8 @@ const scrabbleSocket = useScrabbleSocketWrapper(socket, {
         boardData.value = data.boardData
     },
     onTrayUpdate: data => {
+        console.log(data);
+        
         scrabbleState.letterTray.value = data.tray
     }
 })
@@ -162,12 +164,22 @@ function onWordPlaced(letters: PlacedTile[]){
     })
 }
 
-function startGame(data: any){
+function startGame(data: GameSetup){
     console.log("Start game with data: ", data);
 
-    scrabbleState.gamePhase.value = 'active_round'
+    scrabbleSocket.configureGame(data.config, console.log)
 
-    scrabbleSocket.startGame()
+    let ack = () => {
+        scrabbleState.gamePhase.value = 'active_round'
+        scrabbleSocket.startGame()
+    }
+
+    if(data.customDict && data.customScores){
+        socket.uploadDictionary(data.customDict, ack)
+        socket.uploadLetterValues(data.customScores, ack)
+    }
+
+    
 }
 
 function submitWord(){

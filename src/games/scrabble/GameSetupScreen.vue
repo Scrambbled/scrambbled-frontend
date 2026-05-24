@@ -1,14 +1,21 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import type { ScrabbleSocket } from './socket_wrapper';
+import type { ConfigureGamePayload } from './DTOs';
+
+export interface GameSetup{
+    config: ConfigureGamePayload,
+    customDict?: File,
+    customScores?: File,
+}
 
 const emit = defineEmits<{
-    startGameClicked: [data: any] 
+    startGameClicked: [data: GameSetup] 
 }>()
 
 const languageOptions = [
-    {value: 'english', label: 'English'},
-    {value: 'polish', label: 'Polish'},
+    {value: 'en', label: 'English'},
+    {value: 'pl', label: 'Polish'},
     {value: 'custom', label: 'Custom'},
 ]
 
@@ -37,16 +44,33 @@ function submitGameSetup(e: SubmitEvent){
         return
     }
 
-    let data = [...(new FormData(e.target as HTMLFormElement).entries())]
-    
-    if(!customLanguageSelected){
-        data = data.filter(([id, _]) => !id.startsWith('custom_language_'))
+    let data = new FormData(e.target as HTMLFormElement)
+    let duration = data.get('duration') ?? 'short'
+    let language = data.get('language') ?? 'en'
+    let customDict: File | null = null
+    let customScores: File | null = null
+
+    if(language as string === 'custom'){
+        customDict = data.get('custom_language_dictionary') as File | null
+        customScores = data.get('custom_language_letter_scores') as File | null
     }
 
-    console.log(data);
+    const multipliers = new Map([
+        ['short', 1],
+        ['medium', 2],
+        ['long', 3],
+    ])
 
-    // socket.startGame()
-    emit('startGameClicked', data)
+    const config = {
+        gameLengthMultiplier: (multipliers.get(duration as string) ?? 1), 
+        language: language as string
+    }
+
+    emit('startGameClicked', {
+        config,
+        customDict: customDict ?? undefined,
+        customScores: customScores ?? undefined,
+    })
 }
 
 </script>

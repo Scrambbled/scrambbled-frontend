@@ -1,6 +1,6 @@
 import { io, Socket } from "socket.io-client"
 import type { Listener } from "../../common_types"
-import type { AllPlayersPayload, UserData } from "./DTOs"
+import type { AllPlayersPayload, FileUploadData, UserData } from "./DTOs"
 
 // Common events and their payload types
 type CommonEventsAndPayloads = {
@@ -79,7 +79,35 @@ export const useGameSocket = () => {
 
         getAllPlayers: (callback: Listener<AllPlayersPayload>) => {
             socket?.emit('all-players', {}, callback)
-        }
+        },
+
+        uploadDictionary: (file: File, onAck: Listener<any>) => {
+            file.arrayBuffer().then(data => {
+                socket?.emit(
+                    'dictionary-upload', 
+                    {
+                        filename: file.name,
+                        data
+                    } as FileUploadData, 
+                    onAck
+                )
+            })
+            
+        },
+
+        uploadLetterValues: (file: File, onAck: Listener<any>) => {
+            file.arrayBuffer().then(data => {
+                socket?.emit(
+                    'upload-letter-values', 
+                    {
+                        filename: file.name,
+                        data
+                    } as FileUploadData, 
+                    onAck
+                )
+            })
+             
+        },
     }
 }
 
