@@ -21,6 +21,7 @@ export const useScrabbleSocketWrapper = (socket: GameSocket, listeners: Scrabble
     return {
         checkWord: (word: CheckWordPayload, onAck: Listener<CheckWordResponse>) => socket.sendGameSpecificEvent('check_word', word, onAck),
         startGame: () => socket.sendGameSpecificEvent('start_game', {}),
+        submitMove: (word: CheckWordPayload, onAck: Listener<any>) => socket.sendGameSpecificEvent('submit_move', word, onAck),
     }
 }
 

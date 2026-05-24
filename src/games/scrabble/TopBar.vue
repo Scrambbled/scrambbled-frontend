@@ -44,7 +44,7 @@ const wordInfoCaption = computed(() => {
         <h1 class="title">SCRABBLE</h1>
         <p class="points">Points: {{ props.points }}</p>
 
-    <p :class="wordInfoClass">{{ wordInfoCaption }}</p>
+    <!-- <p :class="wordInfoClass">{{ wordInfoCaption }}</p> -->
     </header>
 </template>
 

@@ -99,9 +99,16 @@ function gamePointerUp(e: PointerEvent){
 }
 
 const wordInfo = ref<WordInfo | null>(null)
+const wordInfoText = ref('')
+const submitWordButtonClasses = ref(new Set(['submit-word', 'hidden']))
 
 function onWordPlaced(letters: PlacedTile[]){
-    console.log("Womp");
+    console.log(letters);
+
+    if(letters.length === 0){
+        submitWordButtonClasses.value.add('hidden')
+        return
+    }
     
     scrabbleSocket.checkWord({
         placedTiles: letters.map(tile => ({
@@ -110,12 +117,21 @@ function onWordPlaced(letters: PlacedTile[]){
             letter: tile.tile.letter
         }))
     }, d => {
+        submitWordButtonClasses.value.delete('hidden')
+
         if(d.status === 'good'){
             wordInfo.value = {
                 error: 'none',
                 isCorrect: true,
                 points: d.points as number
             }
+
+            submitWordButtonClasses.value.add('correct')
+
+            submitWordButtonClasses.value.delete('wrong')
+            submitWordButtonClasses.value.delete('incorrect-placement')
+
+            wordInfoText.value = `Submit: ${d.points} points`
         }
         else{
             wordInfo.value = {
@@ -123,6 +139,26 @@ function onWordPlaced(letters: PlacedTile[]){
                 error: d.status as any,
                 isCorrect: false,
                 points: 0,
+            }
+
+            submitWordButtonClasses.value.delete('correct')
+
+            if(wordInfo.value.error as string === 'bad'){
+                submitWordButtonClasses.value.add('wrong')
+
+                submitWordButtonClasses.value.delete('incorrect-placement')
+
+                wordInfoText.value = 'Word does not exist'
+            }
+            else{
+                submitWordButtonClasses.value.add('incorrect-placement')
+
+                submitWordButtonClasses.value.delete('wrong')
+
+                if(wordInfo.value.error === 'must_contain_starting_square')
+                    wordInfoText.value = 'Must contain starting square'
+                else
+                    wordInfoText.value = 'Incorrect placement'
             }
         }
     })
@@ -134,6 +170,10 @@ function startGame(data: any){
     gamePhase.value = 'active_round'
 
     scrabbleSocket.startGame()
+}
+
+function submitWord(){
+    
 }
 
 </script>
@@ -151,7 +191,10 @@ function startGame(data: any){
             <Board :board-data="boardData" :scrabble-state="scrabbleState" @new-letter-placement="onWordPlaced"/>
         </MovingZoomBox>
 
-        <LetterTray class="letter-tray" :scrabble-state="scrabbleState" :max-tiles="8"/>
+        <section class="bottom-bar">
+            <button :class="[...submitWordButtonClasses].join(' ')" :disabled="!wordInfo?.isCorrect">{{ wordInfoText }}</button>
+            <LetterTray class="letter-tray" :scrabble-state="scrabbleState" :max-tiles="8"/>
+        </section>
 
         <LetterPouch @click="" class="letter-pouch" :scrabble-state="scrabbleState"/>
 
@@ -218,5 +261,58 @@ function startGame(data: any){
     transform: translateX(-50%);
 
     width: min(80rem, 90%);
+}
+
+.bottom-bar{
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    // isolation: isolate;
+
+    & .letter-tray{
+        position: relative;
+    }
+
+    & .submit-word{
+        position: absolute;
+
+        left: 50%;
+        bottom: 100%;
+        transform: translate(-50%, 0);
+
+        padding: .5rem 1rem;
+
+        width: 70%;
+
+        color: white;
+
+        border-radius: 1rem 1rem 0 0;
+
+        border: .25rem solid white;
+        border-bottom: 0;
+
+        transition: border-color .2s, background-color .2s, transform .2s;
+
+        cursor: not-allowed;
+
+        &.correct{
+            background-color: #2b963d;
+            border-color: hsl(130, 55%, 32%);
+            cursor: pointer;
+        }
+        &.wrong{
+            background-color: #a53636;
+            border-color: hsl(0, 51%, 33%);
+        }
+        &.incorrect-placement{
+            background-color: #329ca3;
+            border-color: hsl(184, 53%, 32%);
+        }
+        &.hidden{
+            transform: translate(-50%, 100%);
+        }
+
+    }
 }
 </style>
