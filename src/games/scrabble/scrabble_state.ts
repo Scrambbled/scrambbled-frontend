@@ -2,6 +2,9 @@ import { ref } from "vue";
 import type { LetterTileData } from "./data_type";
 import type { BoardData, PlayerAndPoints } from "./DTOs";
 
+export const gamePhases = ['setup', 'active_round', 'passive_round', 'scores'] as const
+export type GamePhase = typeof gamePhases[number]
+
 export const getDefaultScrabbleState = () => ({
     letterPouch: ref<LetterTileData[]>([]),
     letterTray: ref<LetterTileData[]>([]),
@@ -15,6 +18,8 @@ export const getDefaultScrabbleState = () => ({
     onFloatingLetterCancel: () => {},
 
     playersAndPoints: ref<PlayerAndPoints[]>([]),
+
+    gamePhase: ref<GamePhase>('setup'),
 })
 
 // Extract type from getDefaultScrabbleState return value

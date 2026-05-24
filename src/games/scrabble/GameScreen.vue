@@ -15,13 +15,6 @@ import TopBar, { type WordInfo } from './TopBar.vue';
 import GameSetupScreen from './GameSetupScreen.vue';
 import Leaderboard from './Leaderboard.vue';
 
-// === Game Phases ===
-const gamePhases = ['setup', 'active_round', 'passive_round', 'scores'] as const
-type GamePhase = typeof gamePhases[number]
-
-const gamePhase = ref<GamePhase>('setup')
-
-
 const router = useRouter()
 
 // === Socket ===
@@ -172,7 +165,7 @@ function onWordPlaced(letters: PlacedTile[]){
 function startGame(data: any){
     console.log("Start game with data: ", data);
 
-    gamePhase.value = 'active_round'
+    scrabbleState.gamePhase.value = 'active_round'
 
     scrabbleSocket.startGame()
 }
@@ -202,11 +195,11 @@ scrabbleState.playersAndPoints.value = [
 </script>
 
 <template>
-    <main v-if="gamePhase === 'setup'" class="game-setup">
+    <main v-if="scrabbleState.gamePhase.value === 'setup'" class="game-setup">
         <GameSetupScreen @start-game-clicked="startGame"/>
     </main>
 
-    <main v-else-if="gamePhase === 'active_round' || gamePhase === 'passive_round'" class="game-screen"
+    <main v-else-if="scrabbleState.gamePhase.value === 'active_round' || scrabbleState.gamePhase.value === 'passive_round'" class="game-screen"
         @pointermove="gamePointerMove"
         @pointerup="gamePointerUp"
     >
