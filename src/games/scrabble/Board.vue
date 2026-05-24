@@ -80,7 +80,6 @@ function onPointerUp(_e: PointerEvent, pos: {x: number, y: number}){
         return
     }
 
-
     let row = placedTiles.value[pos.y];
     // If position occupied in placedTiles or currentRoundTiles
     if((row && row[pos.x] !== undefined) || currentRoundTiles.value.findIndex(tile => tile.x === pos.x && tile.y === pos.y) != -1){
@@ -88,8 +87,6 @@ function onPointerUp(_e: PointerEvent, pos: {x: number, y: number}){
         scrabbleState.isLetterFloating.value = false
         return
     }
-
-    // row[pos.x] = scrabbleState.floatingLetter.value;
 
     currentRoundTiles.value.push({tile: scrabbleState.floatingLetter.value, x: pos.x, y: pos.y})
     scrabbleState.isLetterFloating.value = false;

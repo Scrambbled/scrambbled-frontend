@@ -223,7 +223,7 @@ scrabbleState.playersAndPoints.value = [
 
         <LetterTile :class="floatingLetterClass" :style="floatingLetterVars" :letter-tile="scrabbleState.floatingLetter.value"/>
 
-        <TopBar class="top-bar" :points="1234" :player-count="5" :word-info="wordInfo"/>
+        <TopBar class="top-bar" :state="scrabbleState"/>
 
         <Leaderboard class="leaderboard" :state="scrabbleState" :display-limit="5"/>
     </main>

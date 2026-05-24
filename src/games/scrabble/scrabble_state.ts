@@ -20,6 +20,8 @@ export const getDefaultScrabbleState = () => ({
     playersAndPoints: ref<PlayerAndPoints[]>([]),
 
     gamePhase: ref<GamePhase>('setup'),
+
+    points: ref(0),
 })
 
 // Extract type from getDefaultScrabbleState return value
