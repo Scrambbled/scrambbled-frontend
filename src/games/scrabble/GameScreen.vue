@@ -31,7 +31,7 @@ const scrabbleSocket = useScrabbleSocketWrapper(socket, {
         boardData.value = data.boardData
     },
     onTrayUpdate: data => {
-        console.log(data);
+        console.log("New tray: ", data);
         
         scrabbleState.letterTray.value = data.tray
     }
@@ -98,6 +98,14 @@ const wordInfo = ref<WordInfo | null>(null)
 const wordInfoText = ref('')
 // TODO: Change to wordErrorClass: string
 const submitWordButtonClasses = ref(new Set(['submit-word', 'hidden']))
+watch(scrabbleState.isPlayersRound, () => {
+    if(scrabbleState.isPlayersRound.value){
+    submitWordButtonClasses.value.delete('inactive')
+    } else{
+        submitWordButtonClasses.value.add('inactive')
+    }
+    
+}, { immediate: true })
 let currentLetters = [] as PlacedTile[]
 
 function onWordPlaced(letters: PlacedTile[]){
@@ -164,19 +172,29 @@ function onWordPlaced(letters: PlacedTile[]){
     })
 }
 
+
+
 function startGame(data: GameSetup){
     console.log("Start game with data: ", data);
 
-    scrabbleSocket.configureGame(data.config, console.log)
+    scrabbleSocket.configureGame(data.config, () => {
+        if(data.config.language !== 'custom'){
+            scrabbleState.gamePhase.value = 'round'
+            scrabbleSocket.startGame()
+        }
+    })
 
-    let ack = () => {
-        scrabbleState.gamePhase.value = 'active_round'
+    let ack = (data: any) => {
+        console.log("womp?", data);
+        
+        scrabbleState.gamePhase.value = 'round'
         scrabbleSocket.startGame()
     }
 
     if(data.customDict && data.customScores){
-        socket.uploadDictionary(data.customDict, ack)
-        socket.uploadLetterValues(data.customScores, ack)
+        socket.uploadDictionary(data.customDict, (dictData) => {
+            socket.uploadLetterValues(data.customScores as File, (scoresData) => ack({dictData, scoresData}))
+        })
     }
 
     
@@ -191,7 +209,9 @@ function submitWord(){
                 letter: tile.tile.letter
             }))
         },
-        (data) => {console.log(data)}
+        (data) => {
+            scrabbleState.letterTray.value = data.newTray
+        }
     )
 }
 
@@ -211,7 +231,7 @@ scrabbleState.playersAndPoints.value = [
         <GameSetupScreen @start-game-clicked="startGame"/>
     </main>
 
-    <main v-else-if="scrabbleState.gamePhase.value === 'active_round' || scrabbleState.gamePhase.value === 'passive_round'" class="game-screen"
+    <main v-else-if="scrabbleState.gamePhase.value === 'round'" class="game-screen"
         @pointermove="gamePointerMove"
         @pointerup="gamePointerUp"
     >
@@ -222,7 +242,7 @@ scrabbleState.playersAndPoints.value = [
         <section class="bottom-bar">
             <button 
                 :class="[...submitWordButtonClasses].join(' ')" 
-                :disabled="!wordInfo?.isCorrect" 
+                :disabled="!wordInfo?.isCorrect || !scrabbleState.isPlayersRound.value" 
                 @click.prevent="submitWord"
             >
                 {{ wordInfoText }}
@@ -231,7 +251,7 @@ scrabbleState.playersAndPoints.value = [
             <LetterTray class="letter-tray" :scrabble-state="scrabbleState" :max-tiles="8"/>
         </section>
 
-        <LetterPouch @click="" class="letter-pouch" :scrabble-state="scrabbleState"/>
+        <LetterPouch @click="scrabbleState.isPlayersRound.value = !scrabbleState.isPlayersRound.value" class="letter-pouch" :scrabble-state="scrabbleState"/>
 
         <LetterTile :class="floatingLetterClass" :style="floatingLetterVars" :letter-tile="scrabbleState.floatingLetter.value"/>
 
@@ -348,6 +368,12 @@ scrabbleState.playersAndPoints.value = [
         }
         &.hidden{
             transform: translate(-50%, 100%);
+        }
+        &.inactive{
+            background-color: #777;
+            border-color: hsl(0, 0%, 29%);
+
+            cursor: not-allowed;
         }
 
     }
