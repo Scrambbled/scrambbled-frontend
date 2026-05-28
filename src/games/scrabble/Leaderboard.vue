@@ -8,7 +8,7 @@ const {state, displayLimit} = defineProps<{state: ScrabbleState, displayLimit: n
 <template>
     <ul class="scoreboard">
         <li class="score" v-for="playerWithPoints in state.playersAndPoints.value.sort((p1, p2) => p2.points - p1.points).slice(0, displayLimit)">
-            <p class="host-indicator" v-if="playerWithPoints.isHost">HOST</p>
+            <p class="host-indicator" v-if="playerWithPoints.player.id === state.host.value?.id">HOST</p>
             <img class="icon" :src="playerWithPoints.player.iconUrl" alt="">
             <p class="name">{{ playerWithPoints.player.nickname }}</p>
             <p class="points">{{ playerWithPoints.points }}</p>

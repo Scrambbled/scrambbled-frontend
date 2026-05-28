@@ -1,6 +1,6 @@
 import { ref } from "vue";
 import type { LetterTileData } from "./data_type";
-import type { BoardData, PlayerAndPoints } from "./DTOs";
+import type { BoardData, PlayerAndPoints, PlayerInfoDTO } from "./DTOs";
 
 export const gamePhases = ['setup', 'round', 'round', 'scores'] as const
 export type GamePhase = typeof gamePhases[number]
@@ -24,6 +24,8 @@ export const getDefaultScrabbleState = () => ({
     points: ref(0),
 
     isPlayersRound: ref(false),
+
+    host: ref<PlayerInfoDTO | null>(null),
 })
 
 // Extract type from getDefaultScrabbleState return value

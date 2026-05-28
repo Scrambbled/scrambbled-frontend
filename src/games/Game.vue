@@ -58,11 +58,9 @@ else {
         socketConnected.value = false
     })
 
-    socket.addCommonEventHandler('host-upgrade', data => {
-        gameState.host.value = data.host
-
-        console.log("Host update");
-        
+    socket.addCommonEventHandler('host_assigned', data => {
+        console.log("Host update", data);
+        gameState.host.value = data
     })
 
     // TODO: Add game_id event listener

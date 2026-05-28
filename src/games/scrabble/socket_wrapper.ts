@@ -1,16 +1,19 @@
+import type { HostUpgradeDTO } from "../../api/socket/DTOs";
 import type { GameSocket } from "../../api/socket/Socket";
 import type { Listener } from "../../common_types";
-import type { CheckWordPayload, CheckWordResponse, ConfigureGamePayload, GameConfigAck, MoveAckResponse, ScrabbleStartedPayload, TrayUpdateDTO } from "./DTOs";
+import type { CheckWordPayload, CheckWordResponse, ConfigureGamePayload, GameConfigAck, MoveAckResponse, PlayerInfoDTO, ScrabbleStartedPayload, TrayUpdateDTO } from "./DTOs";
 
 
 export interface ScrabbleListeners{
     onGameStart?: Listener<ScrabbleStartedPayload>,
     onTrayUpdate?: Listener<TrayUpdateDTO>,
+    onHostAssigned?: Listener<PlayerInfoDTO>
 }
 
 const mapListenersToEvents = (listeners: ScrabbleListeners) => [
     ['start_game', listeners.onGameStart],
     ['tray_update', listeners.onTrayUpdate],
+    ['host_assigned', listeners.onHostAssigned]
 ] as [string, Listener<any>][]
 
 export const useScrabbleSocketWrapper = (socket: GameSocket, listeners: ScrabbleListeners) => {

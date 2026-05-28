@@ -1,13 +1,14 @@
 import { io, Socket } from "socket.io-client"
 import type { Listener } from "../../common_types"
-import type { AllPlayersPayload, FileUploadData, UserData } from "./DTOs"
+import type { AllPlayersPayload, FileUploadData, HostUpgradeDTO, UserData } from "./DTOs"
+import type { HostAssignedDTO, PlayerInfoDTO } from "../../games/scrabble/DTOs"
 
 // Common events and their payload types
 type CommonEventsAndPayloads = {
     'chat-message': string,
     'connect': {},
     'disconnect': {},
-    'host-upgrade': {host: UserData},
+    'host_assigned': PlayerInfoDTO,
     'server-message': {},
 }
 type CommonEvent = keyof CommonEventsAndPayloads
@@ -24,7 +25,7 @@ export const useGameSocket = () => {
         "chat-message": [],
         "connect": [],
         "disconnect": [],
-        "host-upgrade": [],
+        "host_assigned": [],
         'server-message': [],
     }
 

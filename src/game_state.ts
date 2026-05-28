@@ -3,6 +3,7 @@ import type { SupportedGame } from "./handle_game"
 import type { UserProfileData } from "./types/user_types"
 import type { UserData } from "./api/socket/DTOs"
 import type { SessionAccessCode } from "./common_types"
+import type { PlayerInfoDTO } from "./games/scrabble/DTOs"
 
 let _gameId: SupportedGame | null = null
 
@@ -11,13 +12,13 @@ let userProfile: UserProfileData = {
     username: '<name_not_given>',
 }
 
-const host = ref<UserData | null>(null)
+const host = ref<PlayerInfoDTO | null>(null)
 
 let _userId: string | null = null
 
 const isHost = ref(false)
 watch(host, () => {
-    isHost.value = host.value?.userId === _userId
+    isHost.value = host.value?.id === _userId
 })
 
 let _accessCode: SessionAccessCode = ''
@@ -41,3 +42,5 @@ export const useGameState = () => ({
 
     players,
 })
+
+export type GameState = ReturnType<typeof useGameState>

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted, ref, watch } from 'vue';
 import Board from './Board.vue';
-import type { BoardData, CheckWordResponse, ConfigureGamePayload, GameConfigAck, PlacedTile } from './DTOs';
+import type { BoardData, CheckWordResponse, GameConfigAck, PlacedTile } from './DTOs';
 import LetterPouch from './LetterPouch.vue';
 import LetterTile from './LetterTile.vue';
 import LetterTray from './LetterTray.vue';
@@ -11,11 +11,13 @@ import { useGameSocket } from '../../api/socket/Socket';
 import { isDebugEnv } from '../../misc/tools';
 import { useRouter } from 'vue-router';
 import { useScrabbleSocketWrapper } from './socket_wrapper';
-import TopBar, { type WordInfo } from './TopBar.vue';
+import TopBar from './TopBar.vue';
 import GameSetupScreen, { type GameSetup } from './GameSetupScreen.vue';
 import Leaderboard from './Leaderboard.vue';
 import { placedTileToLetterOnlyPlacedTile } from './misc.ts';
-import type {Listener} from '../../common_types.ts'
+import { useGameState } from '../../game_state.ts';
+
+const gameState = useGameState()
 
 const router = useRouter()
 
@@ -36,6 +38,11 @@ const scrabbleSocket = useScrabbleSocketWrapper(socket, {
         console.log("New tray: ", data);
         
         scrabbleState.letterTray.value = data.tray
+    },
+    onHostAssigned: data => {
+        console.log('Host changed to: ', data);
+    
+        scrabbleState.host.value = data
     }
 })
 
@@ -55,11 +62,11 @@ const boardData = ref({
 
 const scrabbleState = getDefaultScrabbleState()
 
-// TODO: Replace with fetch
-// scrabbleState.letterTray.value = [
-//     {letter: 'a', points: 1},
-//     {letter: 'z', points: 5}
-// ]
+// Synchronize host with game state
+onMounted(() => {
+    scrabbleState.host.value = gameState.host.value
+    console.log(scrabbleState.host.value);
+})
 
 let floatingLetterClass = ref("")
 watch(scrabbleState.isLetterFloating, (isFloating) => {
@@ -86,7 +93,6 @@ watch(scrabbleState.floatingLetterPos, (newPos) => {
 function gamePointerMove(e: PointerEvent){
     if(scrabbleState.isLetterFloating.value){
         scrabbleState.floatingLetterPos.value = {x: e.clientX, y: e.clientY}
-
     }
 }
 
@@ -96,18 +102,16 @@ function gamePointerUp(e: PointerEvent){
     }
 }
 
-// const wordInfo = ref<WordInfo | null>(null)
 const wordInfoText = ref('')
 const wordStatusClass = ref('')
+const submitWordButtonInactiveClass = ref('')
 const submitWordButtonClasses = ref(new Set(['submit-word', 'hidden']))
+
 // Change submit word button class as player's round changes
-watch(scrabbleState.isPlayersRound, () => {
-    if(scrabbleState.isPlayersRound.value){
-    submitWordButtonClasses.value.delete('inactive')
-    } else{
-        submitWordButtonClasses.value.add('inactive')
-    }
+watch(scrabbleState.isPlayersRound, (isPlayersRound) => {
+    // console.log("Changed");
     
+    submitWordButtonInactiveClass.value = (isPlayersRound ? '' : 'inactive')
 }, { immediate: true })
 
 // Letters passed to submit and check word
@@ -123,7 +127,7 @@ function onWordPlaced(letters: PlacedTile[]){
     ])
 
     const statusStatusClassMap = new Map<Status, string>([
-        ['good', ''], // Clear class on good
+        ['good', 'correct'],
         ['bad', 'wrong'],
         ['invalid_placement', 'incorrect-placement'],
         ['must_contain_starting_square', 'incorrect-placement'],
@@ -196,26 +200,18 @@ function startGame(data: GameSetup){
 
 function submitWord(){
     scrabbleSocket.submitMove(
-        {
-            placedTiles: currentLetters.map(tile => ({
-                x: tile.x,
-                y: tile.y,
-                letter: tile.tile.letter
-            }))
-        },
-        (data) => {
-            scrabbleState.letterTray.value = data.newTray
-        }
+        {placedTiles: currentLetters.map(placedTileToLetterOnlyPlacedTile)},
+        (data) => { scrabbleState.letterTray.value = data.newTray }
     )
 }
 
 
 scrabbleState.playersAndPoints.value = [
-    {isHost: true, points: 20, player: { iconUrl: '/api/static/user_icons/sock_puppet_blue.png', id: '', nickname: "Buffalo" }},
-    {isHost: false, points: 0, player: { iconUrl: '/api/static/user_icons/sock_puppet_green.png', id: '', nickname: "Buffalo" }},
-    {isHost: false, points: 243, player: { iconUrl: '/api/static/user_icons/sock_puppet_blue.png', id: '', nickname: "Buffalo" }},
-    {isHost: false, points: 100, player: { iconUrl: '/api/static/user_icons/sock_puppet_pink.png', id: '', nickname: "Buffalo" }},
-    {isHost: false, points: 15, player: { iconUrl: '/api/static/user_icons/sock_puppet_yellow.png', id: '', nickname: "Buffalo" }},
+    {points: 20, player: { iconUrl: '/api/static/user_icons/sock_puppet_blue.png', id: '', nickname: "Buffalo" }},
+    {points: 0, player: { iconUrl: '/api/static/user_icons/sock_puppet_green.png', id: '', nickname: "Buffalo" }},
+    {points: 243, player: { iconUrl: '/api/static/user_icons/sock_puppet_blue.png', id: '', nickname: "Buffalo" }},
+    {points: 100, player: { iconUrl: '/api/static/user_icons/sock_puppet_pink.png', id: '', nickname: "Buffalo" }},
+    {points: 15, player: { iconUrl: '/api/static/user_icons/sock_puppet_yellow.png', id: '', nickname: "Buffalo" }},
 ]
 
 </script>
@@ -235,7 +231,7 @@ scrabbleState.playersAndPoints.value = [
 
         <section class="bottom-bar">
             <button 
-                :class="[...submitWordButtonClasses, wordStatusClass].join(' ')" 
+                :class="[...submitWordButtonClasses, wordStatusClass, submitWordButtonInactiveClass].join(' ')" 
                 :disabled="wordStatusClass.length !== 0 || !scrabbleState.isPlayersRound.value" 
                 @click.prevent="submitWord"
             >

@@ -70,7 +70,6 @@ export interface TrayUpdateDTO{
 export interface PlayerAndPoints{
     player: PlayerInfoDTO,
     points: number,
-    isHost: boolean,
 }
 
 export type SupportedConfigLanguages = 'en' | 'pl' | 'custom'
@@ -85,4 +84,8 @@ export interface GameConfigAck{
     message: string,
     language?: string,
     gameLengthMultiplier: number,
+}
+
+export interface HostAssignedDTO{
+    isHost: boolean,
 }
