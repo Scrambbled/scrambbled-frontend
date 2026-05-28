@@ -1,6 +1,6 @@
 import type { GameSocket } from "../../api/socket/Socket";
 import type { Listener } from "../../common_types";
-import type { CheckWordPayload, CheckWordResponse, ConfigureGamePayload, ScrabbleStartedPayload, TrayUpdateDTO } from "./DTOs";
+import type { CheckWordPayload, CheckWordResponse, ConfigureGamePayload, GameConfigAck, MoveAckResponse, ScrabbleStartedPayload, TrayUpdateDTO } from "./DTOs";
 
 
 export interface ScrabbleListeners{
@@ -21,8 +21,8 @@ export const useScrabbleSocketWrapper = (socket: GameSocket, listeners: Scrabble
     return {
         checkWord: (word: CheckWordPayload, onAck: Listener<CheckWordResponse>) => socket.sendGameSpecificEvent('check_word', word, onAck),
         startGame: () => socket.sendGameSpecificEvent('start_game', {}),
-        submitMove: (word: CheckWordPayload, onAck: Listener<any>) => socket.sendGameSpecificEvent('submit_move', word, onAck),
-        configureGame: (config: ConfigureGamePayload, onAck: Listener<any>) => socket.sendGameSpecificEvent('configure_game', config, onAck),
+        submitMove: (word: CheckWordPayload, onAck: Listener<MoveAckResponse>) => socket.sendGameSpecificEvent('submit_move', word, onAck),
+        configureGame: (config: ConfigureGamePayload, onAck: Listener<GameConfigAck>) => socket.sendGameSpecificEvent('configure_game', config, onAck),
     }
 }
 

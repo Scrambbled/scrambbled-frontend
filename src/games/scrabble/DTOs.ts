@@ -44,6 +44,19 @@ export interface PlacedTile{
     y: number,
 }
 
+export interface Letter{
+    letter: string,
+    points: number,
+}
+
+export interface MoveAckResponse{
+    status: 'accepted' | 'invalid_placement' | 'must_contain_starting_square' | 'bad' | 'error',
+    points: number,
+    updatedScores: Record<string, number>,
+    newTray: Letter[],
+    letterInPouch: number,
+}
+
 export interface CheckWordResponse{
     /// 'bad' means word creates other incorrect words
     status: 'invalid_placement' | 'must_contain_starting_square' | 'good' | 'bad',
@@ -60,7 +73,16 @@ export interface PlayerAndPoints{
     isHost: boolean,
 }
 
+export type SupportedConfigLanguages = 'en' | 'pl' | 'custom'
+
 export interface ConfigureGamePayload{
-    language: string,
+    language: SupportedConfigLanguages,
+    gameLengthMultiplier: number,
+}
+
+export interface GameConfigAck{
+    status: 'error' | 'ok',
+    message: string,
+    language?: string,
     gameLengthMultiplier: number,
 }

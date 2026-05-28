@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted, ref, watch } from 'vue';
 import Board from './Board.vue';
-import type { BoardData, ConfigureGamePayload, PlacedTile } from './DTOs';
+import type { BoardData, CheckWordResponse, ConfigureGamePayload, GameConfigAck, PlacedTile } from './DTOs';
 import LetterPouch from './LetterPouch.vue';
 import LetterTile from './LetterTile.vue';
 import LetterTray from './LetterTray.vue';
@@ -14,6 +14,8 @@ import { useScrabbleSocketWrapper } from './socket_wrapper';
 import TopBar, { type WordInfo } from './TopBar.vue';
 import GameSetupScreen, { type GameSetup } from './GameSetupScreen.vue';
 import Leaderboard from './Leaderboard.vue';
+import { placedTileToLetterOnlyPlacedTile } from './misc.ts';
+import type {Listener} from '../../common_types.ts'
 
 const router = useRouter()
 
@@ -94,10 +96,11 @@ function gamePointerUp(e: PointerEvent){
     }
 }
 
-const wordInfo = ref<WordInfo | null>(null)
+// const wordInfo = ref<WordInfo | null>(null)
 const wordInfoText = ref('')
-// TODO: Change to wordErrorClass: string
+const wordStatusClass = ref('')
 const submitWordButtonClasses = ref(new Set(['submit-word', 'hidden']))
+// Change submit word button class as player's round changes
 watch(scrabbleState.isPlayersRound, () => {
     if(scrabbleState.isPlayersRound.value){
     submitWordButtonClasses.value.delete('inactive')
@@ -106,11 +109,27 @@ watch(scrabbleState.isPlayersRound, () => {
     }
     
 }, { immediate: true })
+
+// Letters passed to submit and check word
 let currentLetters = [] as PlacedTile[]
 
 function onWordPlaced(letters: PlacedTile[]){
-    console.log(letters);
+    type Status = CheckWordResponse['status']
+    const statusLabelMap = new Map<Status, string>([
+        ['good', 'Submit: %p points'],
+        ['bad', 'Word does not exist'],
+        ['invalid_placement', 'Invalid placement'],
+        ['must_contain_starting_square', 'Must contain starting square']
+    ])
 
+    const statusStatusClassMap = new Map<Status, string>([
+        ['good', ''], // Clear class on good
+        ['bad', 'wrong'],
+        ['invalid_placement', 'incorrect-placement'],
+        ['must_contain_starting_square', 'incorrect-placement'],
+    ])
+
+    // If word is empty hide the submit button
     if(letters.length === 0){
         submitWordButtonClasses.value.add('hidden')
         return
@@ -118,86 +137,61 @@ function onWordPlaced(letters: PlacedTile[]){
 
     currentLetters = letters
     
-    scrabbleSocket.checkWord({
-        placedTiles: letters.map(tile => ({
-            x: tile.x,
-            y: tile.y,
-            letter: tile.tile.letter
-        }))
-    }, d => {
+    scrabbleSocket.checkWord({placedTiles: letters.map(placedTileToLetterOnlyPlacedTile)}, d => {
+        // Show button
         submitWordButtonClasses.value.delete('hidden')
 
-        if(d.status === 'good'){
-            wordInfo.value = {
-                error: 'none',
-                isCorrect: true,
-                points: d.points as number
-            }
+        // Change caption, replace %p with points. 
+        // If status not handled by the label map, 
+        // show raw status in single quotes
+        const pointsString = d.points?.toString() ?? '?'
+        wordInfoText.value = statusLabelMap.get(d.status)?.replace('%p', pointsString) ?? `'${d.status}'`
 
-            submitWordButtonClasses.value.add('correct')
-
-            submitWordButtonClasses.value.delete('wrong')
-            submitWordButtonClasses.value.delete('incorrect-placement')
-
-            wordInfoText.value = `Submit: ${d.points} points`
-        }
-        else{
-            wordInfo.value = {
-                // TODO: fix it
-                error: d.status as any,
-                isCorrect: false,
-                points: 0,
-            }
-
-            submitWordButtonClasses.value.delete('correct')
-
-            if(wordInfo.value.error as string === 'bad'){
-                submitWordButtonClasses.value.add('wrong')
-
-                submitWordButtonClasses.value.delete('incorrect-placement')
-
-                wordInfoText.value = 'Word does not exist'
-            }
-            else{
-                submitWordButtonClasses.value.add('incorrect-placement')
-
-                submitWordButtonClasses.value.delete('wrong')
-
-                if(wordInfo.value.error === 'must_contain_starting_square')
-                    wordInfoText.value = 'Must contain starting square'
-                else
-                    wordInfoText.value = 'Incorrect placement'
-            }
-        }
+        // Change error class
+        wordStatusClass.value = statusStatusClassMap.get(d.status) ?? 'unhandled'
     })
 }
 
 
-
+// TODO: Maybe make it async?
 function startGame(data: GameSetup){
-    console.log("Start game with data: ", data);
+    const afterGameConfigured = (data: GameConfigAck) => {
+        if(data.status === 'ok'){
+            console.log('Game configured with: ', data)
 
-    scrabbleSocket.configureGame(data.config, () => {
-        if(data.config.language !== 'custom'){
             scrabbleState.gamePhase.value = 'round'
             scrabbleSocket.startGame()
+        } else {
+            console.error('Game could not be configured: ', data)
         }
-    })
-
-    let ack = (data: any) => {
-        console.log("womp?", data);
-        
-        scrabbleState.gamePhase.value = 'round'
-        scrabbleSocket.startGame()
     }
 
-    if(data.customDict && data.customScores){
+    const sendConfig = () => {
+        scrabbleSocket.configureGame(data.config, afterGameConfigured)
+    }
+
+    // If language is custom upload dict and scores
+    if(data.config.language === 'custom'){
+        // Check for files
+        if(!(data.customDict && data.customScores)){
+            console.error('Custom language selected, but files were not provided')
+            return
+        }
+        // TODO: when implemented on backend, add error handling
         socket.uploadDictionary(data.customDict, (dictData) => {
-            socket.uploadLetterValues(data.customScores as File, (scoresData) => ack({dictData, scoresData}))
+            socket.uploadLetterValues(data.customScores as File, (scoresData) => {
+                console.log(
+                    "Files send with messages:",
+                    "\nDict: ", dictData, 
+                    '\nScores: ', scoresData
+                )
+                
+                sendConfig()
+            })
         })
+    } else {
+        sendConfig()
     }
-
-    
 }
 
 function submitWord(){
@@ -241,8 +235,8 @@ scrabbleState.playersAndPoints.value = [
 
         <section class="bottom-bar">
             <button 
-                :class="[...submitWordButtonClasses].join(' ')" 
-                :disabled="!wordInfo?.isCorrect || !scrabbleState.isPlayersRound.value" 
+                :class="[...submitWordButtonClasses, wordStatusClass].join(' ')" 
+                :disabled="wordStatusClass.length !== 0 || !scrabbleState.isPlayersRound.value" 
                 @click.prevent="submitWord"
             >
                 {{ wordInfoText }}

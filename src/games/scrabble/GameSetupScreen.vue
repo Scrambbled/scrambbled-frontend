@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import type { ScrabbleSocket } from './socket_wrapper';
-import type { ConfigureGamePayload } from './DTOs';
+import type { ConfigureGamePayload, SupportedConfigLanguages } from './DTOs';
 
 export interface GameSetup{
     config: ConfigureGamePayload,
@@ -13,7 +13,7 @@ const emit = defineEmits<{
     startGameClicked: [data: GameSetup] 
 }>()
 
-const languageOptions = [
+const languageOptions: {value: SupportedConfigLanguages, label: string}[] = [
     {value: 'en', label: 'English'},
     {value: 'pl', label: 'Polish'},
     {value: 'custom', label: 'Custom'},
@@ -63,7 +63,7 @@ function submitGameSetup(e: SubmitEvent){
 
     const config = {
         gameLengthMultiplier: (multipliers.get(duration as string) ?? 1), 
-        language: language as string
+        language: language as SupportedConfigLanguages
     }
 
     emit('startGameClicked', {
