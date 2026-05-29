@@ -80,7 +80,7 @@ function submitGameSetup(e: SubmitEvent){
 <template>
     <section class="setup-screen framed-box">
         <div class="player-list-box">
-            <h2>Players</h2>
+            <h2>Players | {{ gameState.getAccessCode() }}</h2>
             <ul class="player-list">
                 <li v-for="player in state.playersAndPoints.value" class="player">
                     <img :src="'/api' + player.player.iconUrl" alt="" class="icon">
