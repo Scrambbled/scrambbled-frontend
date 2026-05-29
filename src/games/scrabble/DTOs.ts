@@ -94,6 +94,7 @@ export interface TurnStartPayload{
     activePlayerId: string,
     lettersInPouch: number,
     scores: Record<string, number>,
+    board: BoardTileState,
 }
 
 export interface PlayerJoinedPayload{
@@ -108,3 +109,12 @@ export interface RoomStatePayload{
     members: {player: PlayerInfoDTO, role: string}[],
     hostId: string,
 }
+
+export interface BoardTile{
+    letter: string,
+    points: number,
+    x: number,
+    y: number,
+}
+
+export type BoardTileState = BoardTile[]

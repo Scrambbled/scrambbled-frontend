@@ -2,7 +2,7 @@
 import { ref, type Ref, toRef, computed, watch, useTemplateRef, defineExpose } from 'vue';
 import { xyIterator } from '../../tools';
 import type { LetterTileData } from './data_type';
-import type { BoardData, PlacedTile, SpecialSquare } from './DTOs';
+import type { BoardData, BoardTileState, PlacedTile, SpecialSquare } from './DTOs';
 import type { ScrabbleState } from './scrabble_state';
 import LetterTile from './LetterTile.vue';
 
@@ -11,7 +11,7 @@ const emit = defineEmits<{
 }>();
 
 defineExpose({
-    updatePlacedTiles: (tiles: PlacedTile[]) => {
+    updatePlacedTiles: (tiles: BoardTileState) => {
         // Clean tiles
         placedTiles.value = new Array(boardData.value.height)
 
@@ -24,8 +24,12 @@ defineExpose({
                 row = placedTiles.value[tile.y] as LetterTileData[]
             }
 
-            row[tile.x] = tile.tile
+            row[tile.x] = {letter: tile.letter, points: tile.points}
         })
+    },
+
+    clearCurrentTiles: () => {
+        currentRoundTiles.value = []
     }
 })
 

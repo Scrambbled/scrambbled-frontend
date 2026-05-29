@@ -225,8 +225,13 @@ const boardRef = useTemplateRef('board')
 function prepareNextRound(data: TurnStartPayload){
     scrabbleState.isPlayersRound.value = data.activePlayerId === socket.getClientId()
 
-    // TODO: update with backend values
-    boardRef.value?.updatePlacedTiles([])
+    // Update board with tiles
+    boardRef.value?.updatePlacedTiles(data.board ?? [])
+    boardRef.value?.clearCurrentTiles()
+
+    // Clear currently placed word
+    onWordPlaced([])
+    currentLetters = []
 
     // Update points
     scrabbleState.playersAndPoints.value.forEach(player => {
