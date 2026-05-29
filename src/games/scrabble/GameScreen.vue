@@ -6,7 +6,7 @@ import LetterPouch from './LetterPouch.vue';
 import LetterTile from './LetterTile.vue';
 import LetterTray from './LetterTray.vue';
 import MovingZoomBox from './MovingZoomBox.vue';
-import { getDefaultScrabbleState } from './scrabble_state';
+import { getDefaultScrabbleState, resetGameState } from './scrabble_state';
 import { useGameSocket } from '../../api/socket/Socket';
 import { isDebugEnv } from '../../misc/tools';
 import { useRouter } from 'vue-router';
@@ -16,6 +16,7 @@ import GameSetupScreen, { type GameSetup } from './GameSetupScreen.vue';
 import Leaderboard from './Leaderboard.vue';
 import { placedTileToLetterOnlyPlacedTile } from './misc.ts';
 import { useGameState } from '../../game_state.ts';
+import ResultsScreen from './ResultsScreen.vue';
 
 const gameState = useGameState()
 
@@ -48,6 +49,14 @@ const scrabbleSocket = useScrabbleSocketWrapper(socket, {
     },
     onPlayerJoin: data => {
         scrabbleState.playersAndPoints.value.push({player: data.player, points: 0})
+    },
+    onGameOver: data => {
+        scrabbleState.gamePhase.value = 'scores'
+        
+        // Update scores
+        scrabbleState.playersAndPoints.value.forEach(player => {
+            player.points = data.finalScores[player.player.id] ?? -1
+        })
     },
     onTurnStart: prepareNextRound,
 })
@@ -242,6 +251,9 @@ function prepareNextRound(data: TurnStartPayload){
     scrabbleState.pouchLetterCount.value = data.lettersInPouch
 }
 
+function prepareNextGame(){
+    resetGameState(scrabbleState)
+}
 
 // scrabbleState.playersAndPoints.value = [
 //     {points: 20, player: { iconUrl: '/api/static/user_icons/sock_puppet_blue.png', id: '', nickname: "Buffalo" }},
@@ -288,6 +300,8 @@ function prepareNextRound(data: TurnStartPayload){
 
         <Leaderboard class="leaderboard" :state="scrabbleState" :display-limit="5"/>
     </main>
+
+    <ResultsScreen v-else-if="scrabbleState.gamePhase.value === 'scores'" :state="scrabbleState" @continue="prepareNextGame()"/>
 </template>
 
 <style lang="scss" scoped>

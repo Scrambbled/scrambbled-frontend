@@ -1,6 +1,6 @@
 import type { GameSocket } from "../../api/socket/Socket";
 import type { Listener } from "../../common_types";
-import type { CheckWordPayload, CheckWordResponse, ConfigureGamePayload, GameConfigAck, MoveAckResponse, PlayerInfoDTO, PlayerJoinedPayload, ScrabbleStartedPayload, TrayUpdateDTO, TurnStartPayload } from "./DTOs";
+import type { CheckWordPayload, CheckWordResponse, ConfigureGamePayload, GameConfigAck, GameOverPayload, MoveAckResponse, PlayerInfoDTO, PlayerJoinedPayload, ScrabbleStartedPayload, TrayUpdateDTO, TurnStartPayload } from "./DTOs";
 
 
 export interface ScrabbleListeners{
@@ -9,6 +9,7 @@ export interface ScrabbleListeners{
     onHostAssigned?: Listener<PlayerInfoDTO>,
     onTurnStart?: Listener<TurnStartPayload>,
     onPlayerJoin?: Listener<PlayerJoinedPayload>,
+    onGameOver?: Listener<GameOverPayload>,
 }
 
 const mapListenersToEvents = (listeners: ScrabbleListeners) => [
@@ -17,6 +18,7 @@ const mapListenersToEvents = (listeners: ScrabbleListeners) => [
     ['host_assigned', listeners.onHostAssigned],
     ['turn_start', listeners.onTurnStart],
     ['player_joined', listeners.onPlayerJoin],
+    ['game_over', listeners.onGameOver],
 ] as [string, Listener<any>][]
 
 export const useScrabbleSocketWrapper = (socket: GameSocket, listeners: ScrabbleListeners) => {

@@ -1,4 +1,4 @@
-import { ref } from "vue";
+import { ref, type Ref } from "vue";
 import type { LetterTileData } from "./data_type";
 import type { BoardData, PlayerAndPoints, PlayerInfoDTO } from "./DTOs";
 
@@ -27,6 +27,14 @@ export const getDefaultScrabbleState = () => ({
 
     host: ref<PlayerInfoDTO | null>(null),
 })
+
+export function resetGameState(state: ScrabbleState){
+    const newState = getDefaultScrabbleState()
+
+    Object.entries(newState).forEach(([key, val]) => {
+        (state[key as keyof ScrabbleState] as Ref).value = (val as Ref).value
+    })
+}
 
 // Extract type from getDefaultScrabbleState return value
 export type ScrabbleState = ReturnType<typeof getDefaultScrabbleState>
