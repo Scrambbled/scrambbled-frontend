@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import type { ScrabbleSocket } from './socket_wrapper';
 import type { ConfigureGamePayload, SupportedConfigLanguages } from './DTOs';
+import { useGameState } from '../../game_state';
+import type { ScrabbleState } from './scrabble_state';
+
+const gameState = useGameState()
 
 export interface GameSetup{
     config: ConfigureGamePayload,
@@ -12,6 +15,8 @@ export interface GameSetup{
 const emit = defineEmits<{
     startGameClicked: [data: GameSetup] 
 }>()
+
+const {state} = defineProps<{state: ScrabbleState}>()
 
 const languageOptions: {value: SupportedConfigLanguages, label: string}[] = [
     {value: 'en', label: 'English'},
@@ -25,17 +30,14 @@ const durationOptions = [
     {value: 'long', label: 'Long'},
 ]
 
-let customLanguageSelected = false
 const customLanguageBoxClasses = ref(new Set(['custom-language', 'hidden']))
 
 function selectLanguage(language: string){
     if(language === 'custom'){
         customLanguageBoxClasses.value.delete('hidden')
-        customLanguageSelected = true
     }
     else{
         customLanguageBoxClasses.value.add('hidden')
-        customLanguageSelected = false
     }
 }
 
@@ -76,38 +78,98 @@ function submitGameSetup(e: SubmitEvent){
 </script>
 
 <template>
-    <form class="game-setup framed-box" @submit.prevent="submitGameSetup">
-        <section class="language-select radio-select">
-            <label v-for="lang, i in languageOptions" class="language-option radio-option">
-                {{ lang.label }}
-                <input 
-                    type="radio" 
-                    name="language" 
-                    :checked="i === 0"
-                    :value="lang.value" @click="selectLanguage(lang.value)
-                ">
-            </label>
-        </section>
-
-        <section :class="[...customLanguageBoxClasses].join(' ')">
-            <label>Dictionary: <input type="file" name="custom_language_dictionary"></label>
-            <label>Letter points: <input type="file" name="custom_language_letter_scores"></label>
-        </section>
-
-        <section class="duration-select radio-select">
-            <label v-for="duration, i in durationOptions" class="duration-option radio-option">
-                {{ duration.label }}
-                <input type="radio" name="duration" :checked="i === 0" :value="duration.value">
-            </label>
-        </section>
-
-        <div class="wrapper">
-            <button type="submit" class="start-game-button press-in-button">Start Game</button>
+    <section class="setup-screen framed-box">
+        <div class="player-list-box">
+            <h2>Players</h2>
+            <ul class="player-list">
+                <li v-for="player in state.playersAndPoints.value" class="player">
+                    <img :src="'/api' + player.player.iconUrl" alt="" class="icon">
+                    <p class="nickname">{{ player.player.nickname }}</p>
+                </li>
+            </ul>
         </div>
-    </form>
+
+
+        <form class="game-setup" @submit.prevent="submitGameSetup">
+            <section class="language-select radio-select">
+                <label v-for="lang, i in languageOptions" class="language-option radio-option">
+                    {{ lang.label }}
+                    <input
+                        type="radio"
+                        name="language"
+                        :checked="i === 0"
+                        :value="lang.value" @click="selectLanguage(lang.value)
+                    ">
+                </label>
+            </section>
+            <section :class="[...customLanguageBoxClasses].join(' ')">
+                <label>Dictionary: <input type="file" name="custom_language_dictionary"></label>
+                <label>Letter points: <input type="file" name="custom_language_letter_scores"></label>
+            </section>
+            <section class="duration-select radio-select">
+                <label v-for="duration, i in durationOptions" class="duration-option radio-option">
+                    {{ duration.label }}
+                    <input type="radio" name="duration" :checked="i === 0" :value="duration.value">
+                </label>
+            </section>
+            <div class="wrapper">
+                <button type="submit" class="start-game-button press-in-button">Start Game</button>
+            </div>
+        </form>
+
+        <div v-if="!gameState.isHost()" class="form-overlay"></div>
+    </section>
 </template>
 
 <style lang="scss" scoped>
+
+.setup-screen{
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+
+    position: relative;
+}
+
+.player-list-box{
+    display: grid;
+    grid-template-rows: min-content auto;
+}
+
+.player-list{
+    overflow-y: scroll;
+}
+
+.player{
+    display: grid;
+    grid-template-columns: min-content auto;
+    align-content: center;
+
+    & .icon{
+        width: 3rem;
+        height: 3rem;
+
+        object-fit: cover;
+
+        border-radius: 50%;
+
+        overflow: hidden;
+    }
+
+    & .nickname{
+
+    }
+}
+
+.form-overlay{
+    background-color: rgba(64, 64, 64, 0.467);
+
+    position: absolute;
+    inset: 0;
+
+    grid-column: 2;
+
+    border-radius: 0 1rem 1rem 0;
+}
 
 .game-setup{
     display: grid;

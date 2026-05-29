@@ -16,11 +16,6 @@ const host = ref<PlayerInfoDTO | null>(null)
 
 let _userId: string | null = null
 
-const isHost = ref(false)
-watch(host, () => {
-    isHost.value = host.value?.id === _userId
-})
-
 let _accessCode: SessionAccessCode = ''
 
 const players = ref<UserData[]>([])
@@ -34,7 +29,7 @@ export const useGameState = () => ({
     setUserProfileData: (data: UserProfileData) => userProfile = data,
     getUserProfileData: () => userProfile,
 
-    isHost,
+    isHost: () => _userId === host.value?.id,
     host,
 
     setUserId: (userId: string) => _userId = userId,

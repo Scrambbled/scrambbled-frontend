@@ -252,7 +252,7 @@ function prepareNextRound(data: TurnStartPayload){
 
 <template>
     <main v-if="scrabbleState.gamePhase.value === 'setup'" class="game-setup">
-        <GameSetupScreen @start-game-clicked="startGame"/>
+        <GameSetupScreen :state="scrabbleState" @start-game-clicked="startGame"/>
     </main>
 
     <main v-else-if="scrabbleState.gamePhase.value === 'round'" class="game-screen"
