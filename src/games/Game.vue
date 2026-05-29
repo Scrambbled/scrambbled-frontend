@@ -63,6 +63,12 @@ else {
         gameState.host.value = data
     })
 
+    socket.addCommonEventHandler('room_state', data => {
+        gameState.setStartRoomState(data)
+        gameState.host.value = {id: data.hostId, iconUrl: '', nickname: ''}
+        console.log('Room state: ', data);
+    })
+
     // TODO: Add game_id event listener
     // Here should be something like: socket.addCommonEvent('game_id', (id) => gameId.value = id)
     // For now hardcode value to words_in_words_game on socket connect

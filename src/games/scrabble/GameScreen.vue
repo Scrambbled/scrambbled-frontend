@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { onMounted, ref, watch } from 'vue';
+import { onMounted, ref, useTemplateRef, watch } from 'vue';
 import Board from './Board.vue';
-import type { BoardData, CheckWordResponse, GameConfigAck, PlacedTile } from './DTOs';
+import type { BoardData, CheckWordResponse, GameConfigAck, PlacedTile, TurnStartPayload } from './DTOs';
 import LetterPouch from './LetterPouch.vue';
 import LetterTile from './LetterTile.vue';
 import LetterTray from './LetterTray.vue';
@@ -33,6 +33,8 @@ const scrabbleSocket = useScrabbleSocketWrapper(socket, {
     onGameStart: data => {
         console.log("Setting board data");
         boardData.value = data.boardData
+
+        scrabbleState.gamePhase.value = 'round'
     },
     onTrayUpdate: data => {
         console.log("New tray: ", data);
@@ -43,7 +45,11 @@ const scrabbleSocket = useScrabbleSocketWrapper(socket, {
         console.log('Host changed to: ', data);
     
         scrabbleState.host.value = data
-    }
+    },
+    onPlayerJoin: data => {
+        scrabbleState.playersAndPoints.value.push({player: data.player, points: 0})
+    },
+    onTurnStart: prepareNextRound,
 })
 
 // TODO: replace with fetch
@@ -62,11 +68,20 @@ const boardData = ref({
 
 const scrabbleState = getDefaultScrabbleState()
 
-// Synchronize host with game state
+// Synchronize with game state
 onMounted(() => {
     scrabbleState.host.value = gameState.host.value
+
+    const startRoomState = gameState.getStartRoomState()
+
+    scrabbleState.playersAndPoints.value = 
+        startRoomState?.members.map(player => ({player: player.player, points: 0})) ?? []
+
+    console.log('gameState: ', startRoomState)
+    console.log('Synced members: ', scrabbleState.playersAndPoints.value)
+
     console.log(scrabbleState.host.value);
-})
+}) 
 
 let floatingLetterClass = ref("")
 watch(scrabbleState.isLetterFloating, (isFloating) => {
@@ -205,14 +220,33 @@ function submitWord(){
     )
 }
 
+const boardRef = useTemplateRef('board')
 
-scrabbleState.playersAndPoints.value = [
-    {points: 20, player: { iconUrl: '/api/static/user_icons/sock_puppet_blue.png', id: '', nickname: "Buffalo" }},
-    {points: 0, player: { iconUrl: '/api/static/user_icons/sock_puppet_green.png', id: '', nickname: "Buffalo" }},
-    {points: 243, player: { iconUrl: '/api/static/user_icons/sock_puppet_blue.png', id: '', nickname: "Buffalo" }},
-    {points: 100, player: { iconUrl: '/api/static/user_icons/sock_puppet_pink.png', id: '', nickname: "Buffalo" }},
-    {points: 15, player: { iconUrl: '/api/static/user_icons/sock_puppet_yellow.png', id: '', nickname: "Buffalo" }},
-]
+function prepareNextRound(data: TurnStartPayload){
+    scrabbleState.isPlayersRound.value = data.activePlayerId === socket.getClientId()
+
+    // TODO: update with backend values
+    boardRef.value?.updatePlacedTiles([])
+
+    // Update points
+    scrabbleState.playersAndPoints.value.forEach(player => {
+        player.points = data.scores[player.player.id] ?? -1
+    })
+
+    // Update pouch letter count
+    scrabbleState.pouchLetterCount.value = data.lettersInPouch
+}
+
+
+// scrabbleState.playersAndPoints.value = [
+//     {points: 20, player: { iconUrl: '/api/static/user_icons/sock_puppet_blue.png', id: '', nickname: "Buffalo" }},
+//     {points: 0, player: { iconUrl: '/api/static/user_icons/sock_puppet_green.png', id: '', nickname: "Buffalo" }},
+//     {points: 243, player: { iconUrl: '/api/static/user_icons/sock_puppet_blue.png', id: '', nickname: "Buffalo" }},
+//     {points: 100, player: { iconUrl: '/api/static/user_icons/sock_puppet_pink.png', id: '', nickname: "Buffalo" }},
+//     {points: 15, player: { iconUrl: '/api/static/user_icons/sock_puppet_yellow.png', id: '', nickname: "Buffalo" }},
+// ]
+
+// TODO: Pass handling
 
 </script>
 
@@ -226,13 +260,13 @@ scrabbleState.playersAndPoints.value = [
         @pointerup="gamePointerUp"
     >
         <MovingZoomBox class="board-manipulation" :stop-movement="scrabbleState.isLetterFloating.value">
-            <Board :board-data="boardData" :scrabble-state="scrabbleState" @new-letter-placement="onWordPlaced"/>
+            <Board ref="board" :board-data="boardData" :scrabble-state="scrabbleState" @new-letter-placement="onWordPlaced"/>
         </MovingZoomBox>
 
         <section class="bottom-bar">
             <button 
                 :class="[...submitWordButtonClasses, wordStatusClass, submitWordButtonInactiveClass].join(' ')" 
-                :disabled="wordStatusClass.length !== 0 || !scrabbleState.isPlayersRound.value" 
+                :disabled="wordStatusClass !== 'correct' || !scrabbleState.isPlayersRound.value" 
                 @click.prevent="submitWord"
             >
                 {{ wordInfoText }}

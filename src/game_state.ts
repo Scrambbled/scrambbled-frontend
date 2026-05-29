@@ -3,7 +3,7 @@ import type { SupportedGame } from "./handle_game"
 import type { UserProfileData } from "./types/user_types"
 import type { UserData } from "./api/socket/DTOs"
 import type { SessionAccessCode } from "./common_types"
-import type { PlayerInfoDTO } from "./games/scrabble/DTOs"
+import type { PlayerInfoDTO, RoomStatePayload } from "./games/scrabble/DTOs"
 
 let _gameId: SupportedGame | null = null
 
@@ -25,6 +25,8 @@ let _accessCode: SessionAccessCode = ''
 
 const players = ref<UserData[]>([])
 
+let startRoomState: RoomStatePayload | null = null
+
 export const useGameState = () => ({
     setGameId: (gameId: SupportedGame) => _gameId = gameId,
     getGameId: () => _gameId,
@@ -41,6 +43,9 @@ export const useGameState = () => ({
     getAccessCode: () => _accessCode,
 
     players,
+
+    setStartRoomState: (state: RoomStatePayload) => startRoomState = state,
+    getStartRoomState: () => startRoomState,
 })
 
 export type GameState = ReturnType<typeof useGameState>

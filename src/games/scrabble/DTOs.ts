@@ -89,3 +89,22 @@ export interface GameConfigAck{
 export interface HostAssignedDTO{
     isHost: boolean,
 }
+
+export interface TurnStartPayload{
+    activePlayerId: string,
+    lettersInPouch: number,
+    scores: Record<string, number>,
+}
+
+export interface PlayerJoinedPayload{
+    player: PlayerInfoDTO,
+    // Observer, player
+    role: string,
+    // Id of a game host
+    hostId: string,
+}
+
+export interface RoomStatePayload{
+    members: {player: PlayerInfoDTO, role: string}[],
+    hostId: string,
+}

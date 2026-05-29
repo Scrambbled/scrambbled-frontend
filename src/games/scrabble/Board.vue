@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, type Ref, toRef, computed, watch, useTemplateRef } from 'vue';
+import { ref, type Ref, toRef, computed, watch, useTemplateRef, defineExpose } from 'vue';
 import { xyIterator } from '../../tools';
 import type { LetterTileData } from './data_type';
 import type { BoardData, PlacedTile, SpecialSquare } from './DTOs';
@@ -9,6 +9,25 @@ import LetterTile from './LetterTile.vue';
 const emit = defineEmits<{
     newLetterPlacement: [letters: PlacedTile[]]
 }>();
+
+defineExpose({
+    updatePlacedTiles: (tiles: PlacedTile[]) => {
+        // Clean tiles
+        placedTiles.value = new Array(boardData.value.height)
+
+        // Set new tiles
+        tiles.forEach(tile => {
+            let row = placedTiles.value[tile.y]
+
+            if(!row){
+                placedTiles.value[tile.y] = []
+                row = placedTiles.value[tile.y] as LetterTileData[]
+            }
+
+            row[tile.x] = tile.tile
+        })
+    }
+})
 
 const props = defineProps<{boardData: BoardData, scrabbleState: ScrabbleState}>()
 

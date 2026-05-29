@@ -6,7 +6,7 @@ export const gamePhases = ['setup', 'round', 'round', 'scores'] as const
 export type GamePhase = typeof gamePhases[number]
 
 export const getDefaultScrabbleState = () => ({
-    letterPouch: ref<LetterTileData[]>([]),
+    pouchLetterCount: ref<number>(0),
     letterTray: ref<LetterTileData[]>([]),
     boardData: ref<BoardData | null>(null),
     stopBoardMoving: ref(false),

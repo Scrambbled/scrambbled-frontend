@@ -1,7 +1,7 @@
 import { io, Socket } from "socket.io-client"
 import type { Listener } from "../../common_types"
 import type { AllPlayersPayload, FileUploadData, HostUpgradeDTO, UserData } from "./DTOs"
-import type { HostAssignedDTO, PlayerInfoDTO } from "../../games/scrabble/DTOs"
+import type { HostAssignedDTO, PlayerInfoDTO, RoomStatePayload } from "../../games/scrabble/DTOs"
 
 // Common events and their payload types
 type CommonEventsAndPayloads = {
@@ -10,6 +10,7 @@ type CommonEventsAndPayloads = {
     'disconnect': {},
     'host_assigned': PlayerInfoDTO,
     'server-message': {},
+    'room_state': RoomStatePayload,
 }
 type CommonEvent = keyof CommonEventsAndPayloads
 type CommonEventListener<E extends CommonEvent> = Listener<CommonEventsAndPayloads[E]>
@@ -27,6 +28,7 @@ export const useGameSocket = () => {
         "disconnect": [],
         "host_assigned": [],
         'server-message': [],
+        'room_state': [],
     }
 
     return {

@@ -11,7 +11,7 @@ const emit = defineEmits<{
 
 <template>
     <button @click.prevent="emit('click')" class="letter-pouch">
-        <p class="letters-left">{{ scrabbleState?.letterPouch.value.length ?? 0 }}</p>
+        <p class="letters-left">{{ scrabbleState?.pouchLetterCount.value ?? 0 }}</p>
     </button>
 </template>
 
