@@ -35,6 +35,16 @@ if(scrabbleState !== undefined){
             })
         }
     })
+
+    watch(scrabbleState.lettersReturned, (letters) => {
+        for(const letter of letters){
+            const emptyIndex = trayContents.value.findIndex(v => v === null)
+
+            if(emptyIndex !== undefined){
+                trayContents.value[emptyIndex] = letter
+            }
+        }
+    })
 }
 
 const cssVars = {

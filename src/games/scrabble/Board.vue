@@ -29,36 +29,42 @@ defineExpose({
             row[tile.x] = {letter: tile.letter, points: tile.points}
         })
 
-        // Check if any tiles overlap prepared ones
-        const overlappingTilesIndices: number[] = []
+        if(scrabbleState.isPlayersRound.value){
+            currentRoundTiles.value = []
+            return
+        }
 
-        currentRoundTiles.value.forEach((tile, i) => {
-            const row = placedTiles.value[tile.y]
-            if(row && row[tile.x]){
-                overlappingTilesIndices.push(i)
-            }
-        })
+        console.log('Round tiles: ', currentRoundTiles.value)
 
-        console.log('Overlapping tiles: ', overlappingTilesIndices)
+        // Get current tiles that overlap the board tiles
+        const overlappingIndices = findOverlappingTiles()
+        console.log('Overlapping indices: ', overlappingIndices)
+        // Get tiles that will be removed
+        const poppedTiles = [...overlappingIndices].map(i => currentRoundTiles.value[i] as PlacedTile)
+        // Remove overlapping tiles
+        currentRoundTiles.value = currentRoundTiles.value.filter((_, i) => !overlappingIndices.has(i))
+        // Give them back to player
+        scrabbleState.lettersReturned.value = poppedTiles.map(t => t.tile)
 
-        // Move overlapping tiles to the tray
-        overlappingTilesIndices.forEach(i => {
-            const tile = currentRoundTiles.value.splice(i, 1)[0]
-            console.log("Tile: ", tile)
-
-            if(!tile){
-                console.error('Tried to remove tile from currentRoundTiles that does not exist')
-                return
-            }
-
-            scrabbleState.letterTray.value.push(tile.tile)
-        })
+        console.log('Popped tiles: ', poppedTiles)
     },
 
     clearCurrentTiles: () => {
         currentRoundTiles.value = []
     }
 })
+
+/// Get indices of currentRoundTiles that overlap with tiles on board
+const findOverlappingTiles = () => new Set(
+    currentRoundTiles.value
+        .map((tile, i) => ({...tile, index: i})) // Add indexes to tiles
+        .filter(tile => { // Filter tiles for which board position is not undefined
+                const row = placedTiles.value[tile.y]
+                return row && row[tile.x]
+        })
+        .map(indexedTile => indexedTile.index) // Retrieve indexes
+)
+
 
 const boardData = toRef(props, 'boardData')
 

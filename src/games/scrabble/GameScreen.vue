@@ -242,11 +242,11 @@ function prepareNextRound(data: TurnStartPayload){
         currentLetters = []
     }
 
-    // Update whose turn it is
-    scrabbleState.isPlayersRound.value = data.activePlayerId === socket.getClientId()
-
     // Update board with tiles
     boardRef.value?.updatePlacedTiles(data.board ?? [])
+
+    // Update whose turn it is
+    scrabbleState.isPlayersRound.value = data.activePlayerId === socket.getClientId()
 
     // Update points
     scrabbleState.playersAndPoints.value.forEach(player => {
