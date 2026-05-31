@@ -188,6 +188,8 @@ function startGame(data: GameSetup){
         if(data.status === 'ok'){
             console.log('Game configured with: ', data)
 
+            boardRef.value?.clearBoard()
+
             scrabbleState.gamePhase.value = 'round'
             scrabbleSocket.startGame()
         } else {
@@ -256,8 +258,10 @@ function prepareNextRound(data: TurnStartPayload){
     // Update pouch letter count
     scrabbleState.pouchLetterCount.value = data.lettersInPouch
 
-    // Show if current round is players round
-    showRoundInfo()
+    // Show round info if current round is players round
+    if(currentLetters.length === 0){
+        showRoundInfo()
+    }
 }
 
 function showRoundInfo(){

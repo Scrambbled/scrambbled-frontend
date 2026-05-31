@@ -51,6 +51,10 @@ defineExpose({
 
     clearCurrentTiles: () => {
         currentRoundTiles.value = []
+    },
+
+    clearBoard: () => {
+        placedTiles.value = []
     }
 })
 
