@@ -10,6 +10,8 @@ const emit = defineEmits<{
     newLetterPlacement: [letters: PlacedTile[]]
 }>();
 
+const props = defineProps<{boardData: BoardData, scrabbleState: ScrabbleState}>()
+
 defineExpose({
     updatePlacedTiles: (tiles: BoardTileState) => {
         // Clean tiles
@@ -26,14 +28,37 @@ defineExpose({
 
             row[tile.x] = {letter: tile.letter, points: tile.points}
         })
+
+        // Check if any tiles overlap prepared ones
+        const overlappingTilesIndices: number[] = []
+
+        currentRoundTiles.value.forEach((tile, i) => {
+            const row = placedTiles.value[tile.y]
+            if(row && row[tile.x]){
+                overlappingTilesIndices.push(i)
+            }
+        })
+
+        console.log('Overlapping tiles: ', overlappingTilesIndices)
+
+        // Move overlapping tiles to the tray
+        overlappingTilesIndices.forEach(i => {
+            const tile = currentRoundTiles.value.splice(i, 1)[0]
+            console.log("Tile: ", tile)
+
+            if(!tile){
+                console.error('Tried to remove tile from currentRoundTiles that does not exist')
+                return
+            }
+
+            scrabbleState.letterTray.value.push(tile.tile)
+        })
     },
 
     clearCurrentTiles: () => {
         currentRoundTiles.value = []
     }
 })
-
-const props = defineProps<{boardData: BoardData, scrabbleState: ScrabbleState}>()
 
 const boardData = toRef(props, 'boardData')
 

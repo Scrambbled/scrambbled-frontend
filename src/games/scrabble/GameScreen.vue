@@ -159,7 +159,8 @@ function onWordPlaced(letters: PlacedTile[]){
 
     // If word is empty hide the submit button
     if(letters.length === 0){
-        submitWordButtonClasses.value.add('hidden')
+        // submitWordButtonClasses.value.add('hidden')
+        showRoundInfo()
         return
     }
 
@@ -232,15 +233,20 @@ function submitWord(){
 const boardRef = useTemplateRef('board')
 
 function prepareNextRound(data: TurnStartPayload){
+    // If player was the one sending tiles clear them
+    if(scrabbleState.isPlayersRound.value){
+        // boardRef.value?.clearCurrentTiles()
+
+        // Clear currently placed word
+        onWordPlaced([])
+        currentLetters = []
+    }
+
+    // Update whose turn it is
     scrabbleState.isPlayersRound.value = data.activePlayerId === socket.getClientId()
 
     // Update board with tiles
     boardRef.value?.updatePlacedTiles(data.board ?? [])
-    boardRef.value?.clearCurrentTiles()
-
-    // Clear currently placed word
-    onWordPlaced([])
-    currentLetters = []
 
     // Update points
     scrabbleState.playersAndPoints.value.forEach(player => {
@@ -249,6 +255,16 @@ function prepareNextRound(data: TurnStartPayload){
 
     // Update pouch letter count
     scrabbleState.pouchLetterCount.value = data.lettersInPouch
+
+    // Show if current round is players round
+    showRoundInfo()
+}
+
+function showRoundInfo(){
+    // Show if current round is players round
+    wordInfoText.value = (scrabbleState.isPlayersRound.value) ? 'Your round!' : 'Other player is creating a word'
+    wordStatusClass.value = (scrabbleState.isPlayersRound.value) ? 'your-turn' : 'incorrect-placement'
+    submitWordButtonClasses.value.delete('hidden')
 }
 
 function prepareNextGame(){
@@ -417,6 +433,10 @@ function prepareNextGame(){
             border-color: hsl(0, 0%, 29%);
 
             cursor: not-allowed;
+        }
+        &.your-turn{
+            background-color: #7736a5;
+            border-color: hsl(275, 51%, 33%);
         }
 
     }
