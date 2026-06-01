@@ -34,7 +34,10 @@ export function resetGameState(state: ScrabbleState){
     const newState = getDefaultScrabbleState()
 
     Object.entries(newState).forEach(([key, val]) => {
-        (state[key as keyof ScrabbleState] as Ref).value = (val as Ref).value
+        // Quick and dirty fix
+        if(key !== 'playersAndPoints'){
+            (state[key as keyof ScrabbleState] as Ref).value = (val as Ref).value
+        }
     })
 }
 

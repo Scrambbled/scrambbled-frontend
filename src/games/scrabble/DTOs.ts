@@ -123,3 +123,8 @@ export interface GameOverPayload{
     winner: string,
     finalScores: Record<string, number>,
 }
+
+export interface PassAckResponse{
+    status: 'ok' | 'error',
+    message?: string,
+}

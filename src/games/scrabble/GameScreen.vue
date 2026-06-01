@@ -283,7 +283,16 @@ function prepareNextGame(){
 //     {points: 15, player: { iconUrl: '/api/static/user_icons/sock_puppet_yellow.png', id: '', nickname: "Buffalo" }},
 // ]
 
-// TODO: Pass handling
+function passRound(){
+    scrabbleSocket.pass(data => {
+        if(data.status === 'ok'){
+            console.log('Skipping round')
+        }
+        else{
+            console.error('Unable to skip round: ', data)
+        }
+    })
+}
 
 </script>
 
@@ -309,6 +318,13 @@ function prepareNextGame(){
                 {{ wordInfoText }}
             </button>
             
+            <button 
+                :class="['pass-round', (scrabbleState.isPlayersRound.value ? '' : 'hidden')].join(' ')"
+                @click="passRound()"
+            >
+                Pass
+            </button>
+
             <LetterTray class="letter-tray" :scrabble-state="scrabbleState" :max-tiles="8"/>
         </section>
 
@@ -392,6 +408,39 @@ function prepareNextGame(){
 
     & .letter-tray{
         position: relative;
+    }
+
+    & .pass-round{
+        position: absolute;
+        left: 100%;
+        top: 50%;
+        transform: translateY(-50%);
+
+        /* height: 80%; */
+
+        background-color: hsl(2, 50%, 40%);
+
+        color: white;
+        font-weight: bold;
+        letter-spacing: .15rem;
+        text-transform: uppercase;
+        
+        padding: .5rem .5rem;
+
+        transition: transform .2s;
+
+        border: .25rem solid hsl(2, 50%, 30%);
+        border-left: 0;
+        border-radius: 0 .5rem .5rem 0;
+
+        &:hover,
+        &:focus-visible{
+            cursor: pointer;
+        }
+        
+        &.hidden{
+            transform: translateX(-100%) translateY(-50%);
+        }
     }
 
     & .submit-word{
