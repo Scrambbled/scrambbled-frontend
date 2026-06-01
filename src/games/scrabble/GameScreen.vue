@@ -226,7 +226,10 @@ function startGame(data: GameSetup){
 function submitWord(){
     scrabbleSocket.submitMove(
         {placedTiles: currentLetters.map(placedTileToLetterOnlyPlacedTile)},
-        (data) => { scrabbleState.letterTray.value = data.newTray }
+        (data) => { 
+            scrabbleState.letterTray.value = data.newTray 
+            scrabbleState.points.value += data.points
+        }
     )
 }
 
@@ -244,6 +247,7 @@ function prepareNextRound(data: TurnStartPayload){
 
     // Update whose turn it is
     scrabbleState.isPlayersRound.value = data.activePlayerId === socket.getClientId()
+    scrabbleState.currentPlayerId.value = data.activePlayerId
 
     // Show last round warning
     if(scrabbleState.isPlayersRound.value && data.lastRound){

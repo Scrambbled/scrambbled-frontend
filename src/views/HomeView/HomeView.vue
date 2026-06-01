@@ -71,7 +71,7 @@ function createGame(gameId: SupportedGame){
                     <button class="round-image-button go-back-button" @click.prevent="moveTo('main-menu')"></button>
                     <ul class="game-list">
                         <li class="game-list__entry" v-for="game in games">
-                            <button @click="createGame(game.gameId)">{{ game.name }}</button>
+                            <button class="create-session" @click="createGame(game.gameId)">{{ game.name }}</button>
                         </li>
                     </ul>
                 </div>
@@ -102,6 +102,33 @@ function createGame(gameId: SupportedGame){
     justify-content: center;
     flex-wrap: wrap;
     gap: 3rem;
+}
+
+.create-session{
+    border: .25rem solid white;
+    border-radius: 1rem;
+
+    background: transparent;
+    color: white;
+    outline: 0;
+
+    cursor: pointer;
+
+    transition: background-color .2s;
+
+    margin-bottom: 1rem;
+
+    padding: .5rem 1rem;
+
+    &:hover{
+        background-color: #fff4;
+    }
+}
+
+.game-list{
+    padding-top: 4rem;
+
+    list-style-type: none;
 }
 
 .session, .profile-edit{ 

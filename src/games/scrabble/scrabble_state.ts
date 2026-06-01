@@ -26,6 +26,7 @@ export const getDefaultScrabbleState = () => ({
     isPlayersRound: ref(false),
 
     host: ref<PlayerInfoDTO | null>(null),
+    currentPlayerId: ref<string | null>(null),
 
     lettersReturned: ref<LetterTileData[]>([]),
 })
