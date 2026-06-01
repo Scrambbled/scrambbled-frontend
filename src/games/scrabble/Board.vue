@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, type Ref, toRef, computed, watch, useTemplateRef, defineExpose } from 'vue';
+import { ref, type Ref, toRef, computed, watch, useTemplateRef, defineExpose, onMounted } from 'vue';
 import { xyIterator } from '../../tools';
 import type { LetterTileData } from './data_type';
 import type { BoardData, BoardTileState, PlacedTile, SpecialSquare } from './DTOs';
@@ -215,6 +215,14 @@ function pointerUpOnBoard(e: PointerEvent){
         scrabbleState.isLetterFloating.value = false
     }
 }
+
+// onMounted(() => {
+//     // For new game reset state
+//     console.log("Clearing board tiles");
+    
+//     placedTiles.value = []
+//     currentRoundTiles.value = []
+// })
 
 </script>
 

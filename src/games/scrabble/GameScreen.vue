@@ -188,8 +188,6 @@ function startGame(data: GameSetup){
         if(data.status === 'ok'){
             console.log('Game configured with: ', data)
 
-            boardRef.value?.clearBoard()
-
             scrabbleState.gamePhase.value = 'round'
             scrabbleSocket.startGame()
         } else {
