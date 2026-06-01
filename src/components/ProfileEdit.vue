@@ -40,6 +40,17 @@ function emitChange(){
         })
     }
 }
+
+function setUsername(e: Event){
+    const target = e.target
+
+    if(!target){
+        return
+    }
+
+    username.value = (e.target as HTMLInputElement).value
+    emitChange()
+}
 </script>
 
 <template>
@@ -50,7 +61,7 @@ function emitChange(){
             </button>
         </div>
 
-        <input type="text" class="username text-input" @change="emitChange()" placeholder="Username" :value="username" autocomplete="false">
+        <input type="text" class="username text-input" @change.prevent="setUsername" placeholder="Username" :value="username" autocomplete="false">
     </div>
 </template>
 
