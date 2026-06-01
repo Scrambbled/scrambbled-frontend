@@ -108,6 +108,8 @@ export interface PlayerJoinedPayload{
 export interface RoomStatePayload{
     members: {player: PlayerInfoDTO, role: string}[],
     hostId: string,
+    gameName: string,
+    gameId: string,
 }
 
 export interface BoardTile{

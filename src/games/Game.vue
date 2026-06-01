@@ -37,19 +37,6 @@ else {
         }else {
             console.error('No clientId on socket');
         }
-
-        // Hardcode the gameId
-        // TODO: Change to event listener
-        gameId.value = 'scrabble_game'
-        gameState.setAccessCode(accessCode)
-
-        if(!handleGame(gameId.value)){
-            console.error(`No game with id '${gameId.value}' found`)
-            gameId.value = null
-        } else {
-            // console.log(socket.socket);
-            
-        }
     })
 
     socket.addCommonEventHandler('disconnect', () => {
@@ -67,6 +54,17 @@ else {
         gameState.setStartRoomState(data)
         gameState.host.value = {id: data.hostId, iconUrl: '', nickname: ''}
         console.log('Room state: ', data);
+
+        gameId.value = data.gameId
+        gameState.setAccessCode(accessCode)
+
+        if(!handleGame(gameId.value)){
+            console.error(`No game with id '${gameId.value}' found`)
+            gameId.value = null
+        } else {
+            // console.log(socket.socket);
+            
+        }
     })
 
     // TODO: Add game_id event listener
