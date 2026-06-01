@@ -124,7 +124,7 @@ export interface BoardTile{
 export type BoardTileState = BoardTile[]
 
 export interface GameOverPayload{
-    winner: string,
+    winnerId: string,
     finalScores: Record<string, number>,
 }
 
