@@ -58,7 +58,7 @@ function submitGameSetup(e: SubmitEvent){
     }
 
     const multipliers = new Map([
-        ['short', 0.5],
+        ['short', 0.05],
         ['medium', 1],
         ['long', 1.5],
     ])

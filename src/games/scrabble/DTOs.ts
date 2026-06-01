@@ -95,6 +95,8 @@ export interface TurnStartPayload{
     lettersInPouch: number,
     scores: Record<string, number>,
     board: BoardTileState,
+    lastRound: boolean,
+    lastRoundTurnsLeft?: number,
 }
 
 export interface PlayerJoinedPayload{

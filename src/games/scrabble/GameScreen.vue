@@ -235,10 +235,7 @@ function submitWord(){
 const boardRef = useTemplateRef('board')
 
 function prepareNextRound(data: TurnStartPayload){
-    // If player was the one sending tiles clear them
     if(scrabbleState.isPlayersRound.value){
-        // boardRef.value?.clearCurrentTiles()
-
         // Clear currently placed word
         onWordPlaced([])
         currentLetters = []
@@ -249,6 +246,11 @@ function prepareNextRound(data: TurnStartPayload){
 
     // Update whose turn it is
     scrabbleState.isPlayersRound.value = data.activePlayerId === socket.getClientId()
+
+    // Show last round warning
+    if(scrabbleState.isPlayersRound.value && data.lastRound){
+        showLastRoundWarning()
+    }
 
     // Update points
     scrabbleState.playersAndPoints.value.forEach(player => {
@@ -266,7 +268,7 @@ function prepareNextRound(data: TurnStartPayload){
 
 function showRoundInfo(){
     // Show if current round is players round
-    wordInfoText.value = (scrabbleState.isPlayersRound.value) ? 'Your round!' : 'Other player is creating a word'
+    wordInfoText.value = (scrabbleState.isPlayersRound.value) ? 'Your turn!' : 'Other player is creating a word'
     wordStatusClass.value = (scrabbleState.isPlayersRound.value) ? 'your-turn' : 'incorrect-placement'
     submitWordButtonClasses.value.delete('hidden')
 }
@@ -292,6 +294,14 @@ function passRound(){
             console.error('Unable to skip round: ', data)
         }
     })
+}
+
+const additionInfoText = ref('')
+const showAdditionalInfo = ref(false)
+
+function showLastRoundWarning(){
+    additionInfoText.value = "Last round!!!"
+    showAdditionalInfo.value = true
 }
 
 </script>
@@ -328,11 +338,14 @@ function passRound(){
             <LetterTray class="letter-tray" :scrabble-state="scrabbleState" :max-tiles="8"/>
         </section>
 
-        <LetterPouch @click="scrabbleState.isPlayersRound.value = !scrabbleState.isPlayersRound.value" class="letter-pouch" :scrabble-state="scrabbleState"/>
+        <LetterPouch @click="" class="letter-pouch" :scrabble-state="scrabbleState"/>
 
         <LetterTile :class="floatingLetterClass" :style="floatingLetterVars" :letter-tile="scrabbleState.floatingLetter.value"/>
 
-        <TopBar class="top-bar" :state="scrabbleState"/>
+        <div class="top-bar-wrapper">
+            <p :class="['addition-info-box', (showAdditionalInfo ? '': 'hidden')]">{{ additionInfoText }}</p>
+            <TopBar class="top-bar" :state="scrabbleState"/>
+        </div>
 
         <Leaderboard class="leaderboard" :state="scrabbleState" :display-limit="5"/>
     </main>
@@ -390,13 +403,40 @@ function passRound(){
     }
 }
 
-.top-bar{
+.top-bar-wrapper{
     position: absolute;
     top: 0;
     left: 50%;
     transform: translateX(-50%);
 
     width: min(80rem, 90%);
+
+    & .addition-info-box{
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+
+        background-color: hsl(28, 84%, 42%);
+
+        border-radius: 0 0 1rem 1rem;
+
+        border: .25rem solid hsl(28, 84%, 32%);
+        border-top: 0;
+
+        color: white;
+        font-weight: bold;
+        letter-spacing: .15rem;
+        text-transform: uppercase;
+
+        padding: 1rem 1.5rem;
+
+        transition: translate .2s;
+
+        &.hidden{
+            translate: 0 -100%;
+        }
+    }
 }
 
 .bottom-bar{
