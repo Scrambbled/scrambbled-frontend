@@ -103,6 +103,7 @@ function submitGameSetup(e: SubmitEvent){
                 </label>
             </section>
             <section :class="[...customLanguageBoxClasses].join(' ')">
+                <RouterLink to="/tutorial/scrabble/file_formatting" class="formatting-link" target="_blank">Formatowanie plików</RouterLink>
                 <label>Dictionary: <input type="file" name="custom_language_dictionary"></label>
                 <label>Letter points: <input type="file" name="custom_language_letter_scores"></label>
             </section>
